@@ -430,17 +430,19 @@
     async function loadPlayers() {
       try {
         setLoading(true);
+        render();
+
         const res = await fetch(API_URL + "?t=" + Date.now());
         const data = await res.json();
 
         if (!data.ok) throw new Error(data.error || "โหลดข้อมูลไม่สำเร็จ");
 
         players = normalizePlayers(data.players || []);
-        render();
       } catch (err) {
         alert("โหลดข้อมูลจาก Google Sheet ไม่สำเร็จ: " + err.message);
       } finally {
         setLoading(false);
+        render();
       }
     }
 
