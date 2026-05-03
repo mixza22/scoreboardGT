@@ -397,12 +397,15 @@
 
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script>
-    let players = normalizePlayers(JSON.parse(localStorage.getItem("gifted_scoreboard_players")) || []);
+    const API_URL = "https://script.google.com/macros/s/AKfycbz5lis60t9KEr6sCuNm0ugqzjdJMoIsLxYAGv0dPDd2aMkgWP3yaxLMnCqvTdlNjRLJSA/exec";
+    const ADMIN_PASSWORD = "1234"; // ต้องตรงกับรหัสใน Apps Script
+
+    let players = [];
     let history = JSON.parse(localStorage.getItem("gifted_history")) || [];
     let lastAction = null;
     let sortMode = localStorage.getItem("gifted_sort_mode") || "score_desc";
     let isAdmin = sessionStorage.getItem("gifted_admin_unlocked") === "true";
-    const ADMIN_PASSWORD = "giftedloop"; // เปลี่ยนรหัสตรงนี้ได้
+    let isLoading = false;
 
     function makeId() {
       return "p_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 8);
@@ -412,11 +415,52 @@
       return list
         .filter(p => p && typeof p.name === "string")
         .map(p => ({
-          id: p.id || makeId(),
+          id: String(p.id || makeId()),
           name: p.name.trim(),
           score: Number.isFinite(Number(p.score)) ? Number(p.score) : 0
         }))
         .filter(p => p.name.length > 0);
+    }
+
+    function saveLocal() {
+      localStorage.setItem("gifted_history", JSON.stringify(history));
+      localStorage.setItem("gifted_sort_mode", sortMode);
+    }
+
+    async function loadPlayers() {
+      try {
+        setLoading(true);
+        const res = await fetch(API_URL + "?t=" + Date.now());
+        const data = await res.json();
+
+        if (!data.ok) throw new Error(data.error || "โหลดข้อมูลไม่สำเร็จ");
+
+        players = normalizePlayers(data.players || []);
+        render();
+      } catch (err) {
+        alert("โหลดข้อมูลจาก Google Sheet ไม่สำเร็จ: " + err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    async function apiPost(payload) {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ ...payload, password: ADMIN_PASSWORD })
+      });
+
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || "บันทึกข้อมูลไม่สำเร็จ");
+      return data;
+    }
+
+    function setLoading(value) {
+      isLoading = value;
+      document.querySelectorAll("button").forEach(btn => {
+        if (btn.id !== "adminBtn") btn.disabled = value;
+      });
     }
 
     function requireAdmin() {
@@ -458,12 +502,6 @@
       }
     }
 
-    function save() {
-      localStorage.setItem("gifted_scoreboard_players", JSON.stringify(players));
-      localStorage.setItem("gifted_history", JSON.stringify(history));
-      localStorage.setItem("gifted_sort_mode", sortMode);
-    }
-
     function getRankIcon(index) {
       if (index === 0) return "🥇";
       if (index === 1) return "🥈";
@@ -497,8 +535,13 @@
 
       list.innerHTML = "";
 
+      if (isLoading) {
+        list.innerHTML = `<div class="empty">กำลังโหลดข้อมูลจาก Google Sheet...</div>`;
+        return;
+      }
+
       if (players.length === 0) {
-        list.innerHTML = `<div class="empty">ยังไม่มีรายชื่อ กดเพิ่มชื่อด้านบนก่อน</div>`;
+        list.innerHTML = `<div class="empty">ยังไม่มีรายชื่อ กดปลดล็อก Admin แล้วเพิ่มชื่อก่อน</div>`;
         return;
       }
 
@@ -515,7 +558,7 @@
             <div class="rank">${getRankIcon(realRank)}</div>
             <div>
               <div class="name">${escapeHtml(p.name)}</div>
-              <div class="sub">กด + เพื่อเพิ่มคะแนน / - เพื่อลดคะแนน</div>
+              <div class="sub">ข้อมูลกลางจาก Google Sheet</div>
             </div>
             <div class="score">${p.score}</div>
             <div class="actions">
@@ -530,7 +573,7 @@
       });
     }
 
-    function addPlayer() {
+    async function addPlayer() {
       if (!requireAdmin()) return;
       const input = document.getElementById("nameInput");
       const name = input.value.trim();
@@ -543,103 +586,127 @@
       }
 
       const player = { id: makeId(), name, score: 0 };
-      players.push(player);
-      history.unshift({ time: new Date().toLocaleTimeString(), name, change: "เพิ่มชื่อ" });
-      if (history.length > 100) history.pop();
-      lastAction = { type: "add", player };
-      input.value = "";
-      save();
-      render();
-    }
 
-    function changeScore(id, amount) {
-      if (!requireAdmin()) return;
-      const player = players.find(p => p.id === id);
-      if (!player) return;
-
-      player.score += amount;
-      history.unshift({ time: new Date().toLocaleTimeString(), name: player.name, change: amount });
-      if (history.length > 100) history.pop();
-      lastAction = { type: "score", id, amount };
-      save();
-      render();
-    }
-
-    function renamePlayer(id) {
-      if (!requireAdmin()) return;
-      const player = players.find(p => p.id === id);
-      if (!player) return;
-
-      const oldName = player.name;
-      const newName = prompt("ใส่ชื่อใหม่", oldName);
-      if (!newName || !newName.trim()) return;
-
-      const cleanName = newName.trim();
-      const duplicate = players.some(p => p.id !== id && p.name.toLowerCase() === cleanName.toLowerCase());
-      if (duplicate) {
-        alert("มีชื่อนี้อยู่แล้ว");
-        return;
+      try {
+        setLoading(true);
+        await apiPost({ action: "add", id: player.id, name: player.name });
+        history.unshift({ time: new Date().toLocaleTimeString(), name, change: "เพิ่มชื่อ" });
+        if (history.length > 100) history.pop();
+        lastAction = { type: "add", player };
+        input.value = "";
+        saveLocal();
+        await loadPlayers();
+      } catch (err) {
+        alert(err.message);
+      } finally {
+        setLoading(false);
       }
-
-      player.name = cleanName;
-      history.unshift({ time: new Date().toLocaleTimeString(), name: cleanName, change: `เปลี่ยนชื่อจาก ${oldName}` });
-      if (history.length > 100) history.pop();
-      lastAction = { type: "rename", id, oldName, newName: cleanName };
-      save();
-      render();
     }
 
-    function removePlayer(id) {
+    async function changeScore(id, amount) {
       if (!requireAdmin()) return;
-      const index = players.findIndex(p => p.id === id);
-      if (index === -1) return;
+      const player = players.find(p => p.id === id);
+      if (!player) return;
 
-      const player = players[index];
+      try {
+        setLoading(true);
+        await apiPost({ action: "score", id, amount });
+        history.unshift({ time: new Date().toLocaleTimeString(), name: player.name, change: amount });
+        if (history.length > 100) history.pop();
+        lastAction = { type: "score", id, amount };
+        saveLocal();
+        await loadPlayers();
+      } catch (err) {
+        alert(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    async function renamePlayer(id) {
+      alert("ตอนนี้ API Google Sheet ยังไม่ได้เปิดฟังก์ชันแก้ชื่อ เดี๋ยวเพิ่มให้ได้ภายหลัง");
+    }
+
+    async function removePlayer(id) {
+      if (!requireAdmin()) return;
+      const player = players.find(p => p.id === id);
+      if (!player) return;
       if (!confirm(`ลบ ${player.name} ออกจากบอร์ด?`)) return;
 
-      players.splice(index, 1);
-      history.unshift({ time: new Date().toLocaleTimeString(), name: player.name, change: "ลบชื่อ" });
-      if (history.length > 100) history.pop();
-      lastAction = { type: "remove", player, index };
-      save();
-      render();
+      try {
+        setLoading(true);
+        await apiPost({ action: "delete", id });
+        history.unshift({ time: new Date().toLocaleTimeString(), name: player.name, change: "ลบชื่อ" });
+        if (history.length > 100) history.pop();
+        lastAction = { type: "remove", player };
+        saveLocal();
+        await loadPlayers();
+      } catch (err) {
+        alert(err.message);
+      } finally {
+        setLoading(false);
+      }
     }
 
-    function resetScoresOnly() {
+    async function resetScoresOnly() {
       if (!requireAdmin()) return;
       if (!confirm("รีเซ็ตเฉพาะคะแนนให้เป็น 0 ทั้งหมด? รายชื่อยังอยู่")) return;
 
-      lastAction = { type: "reset", players: JSON.parse(JSON.stringify(players)) };
-      players = players.map(p => ({ ...p, score: 0 }));
-      history.unshift({ time: new Date().toLocaleTimeString(), name: "SYSTEM", change: "รีเซ็ตคะแนนทั้งหมด" });
-      if (history.length > 100) history.pop();
-      save();
-      render();
+      try {
+        setLoading(true);
+        const backup = JSON.parse(JSON.stringify(players));
+        for (const player of players) {
+          if (player.score !== 0) {
+            await apiPost({ action: "score", id: player.id, amount: -player.score });
+          }
+        }
+        history.unshift({ time: new Date().toLocaleTimeString(), name: "SYSTEM", change: "รีเซ็ตคะแนนทั้งหมด" });
+        if (history.length > 100) history.pop();
+        lastAction = { type: "reset", players: backup };
+        saveLocal();
+        await loadPlayers();
+      } catch (err) {
+        alert(err.message);
+      } finally {
+        setLoading(false);
+      }
     }
 
-    function undoAction() {
+    async function undoAction() {
       if (!requireAdmin()) return;
       if (!lastAction) return alert("ไม่มีอะไรให้ Undo");
 
-      if (lastAction.type === "score") {
-        const player = players.find(p => p.id === lastAction.id);
-        if (player) player.score -= lastAction.amount;
-      } else if (lastAction.type === "add") {
-        players = players.filter(p => p.id !== lastAction.player.id);
-      } else if (lastAction.type === "remove") {
-        players.splice(lastAction.index, 0, lastAction.player);
-      } else if (lastAction.type === "reset") {
-        players = lastAction.players;
-      } else if (lastAction.type === "rename") {
-        const player = players.find(p => p.id === lastAction.id);
-        if (player) player.name = lastAction.oldName;
-      }
+      try {
+        setLoading(true);
 
-      history.unshift({ time: new Date().toLocaleTimeString(), name: "SYSTEM", change: "Undo ล่าสุด" });
-      if (history.length > 100) history.pop();
-      lastAction = null;
-      save();
-      render();
+        if (lastAction.type === "score") {
+          await apiPost({ action: "score", id: lastAction.id, amount: -lastAction.amount });
+        } else if (lastAction.type === "add") {
+          await apiPost({ action: "delete", id: lastAction.player.id });
+        } else if (lastAction.type === "remove") {
+          await apiPost({ action: "add", id: lastAction.player.id, name: lastAction.player.name });
+          if (lastAction.player.score !== 0) {
+            await apiPost({ action: "score", id: lastAction.player.id, amount: lastAction.player.score });
+          }
+        } else if (lastAction.type === "reset") {
+          for (const oldPlayer of lastAction.players) {
+            const current = players.find(p => p.id === oldPlayer.id);
+            if (current) {
+              await apiPost({ action: "score", id: oldPlayer.id, amount: oldPlayer.score - current.score });
+            }
+          }
+        }
+
+        history.unshift({ time: new Date().toLocaleTimeString(), name: "SYSTEM", change: "Undo ล่าสุด" });
+        if (history.length > 100) history.pop();
+        lastAction = null;
+        saveLocal();
+        await loadPlayers();
+      } catch (err) {
+        alert(err.message);
+      } finally {
+        setLoading(false);
+      }
     }
 
     function handleEnter(event) {
@@ -649,7 +716,8 @@
     function exportData() {
       const data = {
         app: "Gifted Scoreboard",
-        version: 2,
+        version: 3,
+        source: "Google Sheet API",
         exportedAt: new Date().toISOString(),
         sortMode,
         players,
@@ -667,47 +735,14 @@
       URL.revokeObjectURL(url);
     }
 
-    function importData(event) {
-      if (!requireAdmin()) {
-        event.target.value = "";
-        return;
-      }
-      const file = event.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          const data = JSON.parse(e.target.result);
-          const importedPlayers = Array.isArray(data) ? data : data.players;
-
-          if (!Array.isArray(importedPlayers)) {
-            alert("ไฟล์ไม่ถูกต้อง: ไม่เจอข้อมูล players");
-            return;
-          }
-
-          const cleanPlayers = normalizePlayers(importedPlayers);
-          if (!confirm(`Import รายชื่อ ${cleanPlayers.length} คน? ข้อมูลเดิมจะถูกแทนที่`)) return;
-
-          players = cleanPlayers;
-          history = Array.isArray(data.history) ? data.history : [];
-          sortMode = data.sortMode || sortMode;
-          lastAction = null;
-          save();
-          render();
-          alert("Import สำเร็จ");
-        } catch (err) {
-          alert("อ่านไฟล์ไม่สำเร็จ กรุณาเลือกไฟล์ JSON ที่ถูกต้อง");
-        } finally {
-          event.target.value = "";
-        }
-      };
-      reader.readAsText(file);
+    async function importData(event) {
+      alert("ตอนนี้ Import JSON ถูกปิดไว้ก่อน เพราะข้อมูลหลักอยู่ใน Google Sheet แล้ว");
+      event.target.value = "";
     }
 
     function setSort(mode) {
       sortMode = mode;
-      save();
+      saveLocal();
       render();
     }
 
@@ -782,8 +817,8 @@
     }
 
     updateAdminButton();
-    save();
     render();
+    loadPlayers();
   </script>
 </body>
 </html>
