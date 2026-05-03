@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gifted Scoreboard</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #0b0f1a, #111827, #020617);
+      color: #fff;
+      min-height: 100vh;
+      padding: 14px;
+    }
+
+    .app {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+
+    .title h1 {
+      margin: 0;
+      font-size: 30px;
+      letter-spacing: 0.5px;
+    }
+
+    .title p {
+      margin: 6px 0 0;
+      color: #9ca3af;
+    }
+
+    .card {
+      background: rgba(17, 24, 39, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 14px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+      margin-bottom: 12px;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) repeat(7, auto);
+      gap: 10px;
+      align-items: center;
+    }
+
+    input {
+      width: 100%;
+      padding: 13px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: #020617;
+      color: white;
+      outline: none;
+      font-size: 15px;
+    }
+
+    input:focus {
+      border-color: #6366f1;
+    }
+
+    button {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 14px;
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      background: #4f46e5;
+      transition: 0.15s;
+      white-space: nowrap;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.08);
+    }
+
+    .danger {
+      background: #dc2626;
+    }
+
+    .ghost {
+      background: #374151;
+    }
+
+    .admin-on {
+      background: #16a34a;
+    }
+
+    .admin-off {
+      background: #7f1d1d;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .stat-box {
+      background: #020617;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .stat-label {
+      color: #9ca3af;
+      font-size: 13px;
+    }
+
+    .stat-value {
+      font-size: 22px;
+      font-weight: 800;
+      margin-top: 6px;
+    }
+
+    .board-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      color: #d1d5db;
+      font-size: 14px;
+    }
+
+    .player {
+      display: grid;
+      grid-template-columns: 60px 1fr 90px 250px;
+      align-items: center;
+      gap: 12px;
+      background: #020617;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 10px;
+      border-radius: 14px;
+      margin-bottom: 8px;
+    }
+
+    .rank {
+      font-size: 22px;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .name {
+      font-size: 17px;
+      font-weight: 800;
+    }
+
+    .sub {
+      color: #9ca3af;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    .score {
+      text-align: right;
+      font-size: 22px;
+      font-weight: 900;
+      color: #a5b4fc;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 6px;
+      flex-wrap: nowrap;
+    }
+
+    .actions button {
+      padding: 8px 10px;
+      border-radius: 10px;
+      min-width: 38px;
+      font-size: 13px;
+    }
+
+    .plus {
+      background: #16a34a;
+    }
+
+    .minus {
+      background: #f97316;
+    }
+
+    .empty {
+      text-align: center;
+      color: #9ca3af;
+      padding: 35px 10px;
+    }
+
+    .leaderboard-list {
+      max-height: 62vh;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .leaderboard-list::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .leaderboard-list::-webkit-scrollbar-thumb {
+      background: #374151;
+      border-radius: 999px;
+    }
+
+    .top1 {
+      border-color: rgba(250, 204, 21, 0.7);
+      background: linear-gradient(90deg, rgba(113, 63, 18, 0.45), #020617);
+    }
+
+    .top2 {
+      border-color: rgba(209, 213, 219, 0.45);
+    }
+
+    .top3 {
+      border-color: rgba(180, 83, 9, 0.6);
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 999;
+    }
+
+    .modal-backdrop.show {
+      display: flex;
+    }
+
+    .modal {
+      width: min(680px, 100%);
+      max-height: 80vh;
+      overflow: hidden;
+      background: #111827;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 20px;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .history-list {
+      max-height: 55vh;
+      overflow-y: auto;
+      padding: 12px 16px 16px;
+    }
+
+    .history-item {
+      display: grid;
+      grid-template-columns: 90px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+      color: #e5e7eb;
+    }
+
+    .history-time {
+      color: #9ca3af;
+      font-size: 13px;
+    }
+
+    .history-name {
+      font-weight: 800;
+    }
+
+    .history-change {
+      font-weight: 900;
+      color: #a5b4fc;
+    }
+
+    @media (max-width: 760px) {
+      body {
+        padding: 14px;
+      }
+
+      .header,
+      .controls {
+        grid-template-columns: 1fr;
+        display: grid;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      .player {
+        grid-template-columns: 52px 1fr;
+      }
+
+      .score {
+        text-align: left;
+        grid-column: 2;
+      }
+
+      .actions {
+        grid-column: 1 / -1;
+        justify-content: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <div class="title">
+        <h1>🏆 Gifted Scoreboard</h1>
+        <p>จดคะแนน Loop</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="controls">
+        <input id="nameInput" placeholder="ใส่ชื่อเพื่อน เช่น G1, Mix, Boss" onkeydown="handleEnter(event)" />
+        <button onclick="addPlayer()">+ เพิ่มชื่อ</button>
+        <button id="adminBtn" class="admin-off" onclick="toggleAdmin()">🔒 Admin Lock</button>
+        <button class="danger" onclick="resetScoresOnly()">รีเซ็ตคะแนน</button>
+        <button class="ghost" onclick="undoAction()">Undo</button>
+        <button class="ghost" onclick="exportImage()">Export รูป</button>
+        <button class="ghost" onclick="toggleHistory()">History</button>
+        <button class="ghost" onclick="exportData()">Export JSON</button>
+        <button class="ghost" onclick="document.getElementById('importFile').click()">Import JSON</button>
+        <input id="importFile" type="file" accept="application/json,.json" style="display:none" onchange="importData(event)" />
+      </div>
+    </div>
+
+    <div class="card stats">
+      <div class="stat-box">
+        <div class="stat-label">จำนวนผู้เล่น</div>
+        <div class="stat-value" id="totalPlayers">0</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">คะแนนรวม</div>
+        <div class="stat-value" id="totalScore">0</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">อันดับ 1 ตอนนี้</div>
+        <div class="stat-value" id="topPlayer">-</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="board-title">
+        <input id="searchInput" placeholder="🔍 ค้นหาชื่อ..." style="max-width:180px; padding:6px 10px; border-radius:10px; border:1px solid rgba(255,255,255,0.2); background:#020617; color:white;" oninput="render()" />
+        <b>Leaderboard</b>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <span id="sortLabel">เรียง: คะแนน (มาก→น้อย)</span>
+          <button class="ghost" onclick="setSort('score_desc')">คะแนน↓</button>
+          <button class="ghost" onclick="setSort('score_asc')">คะแนน↑</button>
+          <button class="ghost" onclick="setSort('name_asc')">A→Z</button>
+          <button class="ghost" onclick="setSort('name_desc')">Z→A</button>
+        </div>
+      </div>
+      <div id="list" class="leaderboard-list"></div>
+    </div>
+  </div>
+
+  <div id="historyModal" class="modal-backdrop" onclick="closeHistory(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h2>📜 History Log</h2>
+        <button class="ghost" onclick="toggleHistory()">ปิด</button>
+      </div>
+      <div id="historyList" class="history-list"></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script>
+    let players = normalizePlayers(JSON.parse(localStorage.getItem("gifted_scoreboard_players")) || []);
+    let history = JSON.parse(localStorage.getItem("gifted_history")) || [];
+    let lastAction = null;
+    let sortMode = localStorage.getItem("gifted_sort_mode") || "score_desc";
+    let isAdmin = sessionStorage.getItem("gifted_admin_unlocked") === "true";
+    const ADMIN_PASSWORD = "giftedloop"; // เปลี่ยนรหัสตรงนี้ได้
+
+    function makeId() {
+      return "p_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 8);
+    }
+
+    function normalizePlayers(list) {
+      return list
+        .filter(p => p && typeof p.name === "string")
+        .map(p => ({
+          id: p.id || makeId(),
+          name: p.name.trim(),
+          score: Number.isFinite(Number(p.score)) ? Number(p.score) : 0
+        }))
+        .filter(p => p.name.length > 0);
+    }
+
+    function requireAdmin() {
+      if (isAdmin) return true;
+      alert("ต้องปลดล็อก Admin ก่อน ถึงจะแก้คะแนน/รายชื่อได้");
+      return false;
+    }
+
+    function toggleAdmin() {
+      if (isAdmin) {
+        isAdmin = false;
+        sessionStorage.removeItem("gifted_admin_unlocked");
+        updateAdminButton();
+        return;
+      }
+
+      const pass = prompt("ใส่รหัส Admin");
+      if (pass === ADMIN_PASSWORD) {
+        isAdmin = true;
+        sessionStorage.setItem("gifted_admin_unlocked", "true");
+        updateAdminButton();
+      } else if (pass !== null) {
+        alert("รหัสผิด");
+      }
+    }
+
+    function updateAdminButton() {
+      const btn = document.getElementById("adminBtn");
+      if (!btn) return;
+
+      if (isAdmin) {
+        btn.textContent = "🔓 Admin Unlocked";
+        btn.classList.remove("admin-off");
+        btn.classList.add("admin-on");
+      } else {
+        btn.textContent = "🔒 Admin Lock";
+        btn.classList.remove("admin-on");
+        btn.classList.add("admin-off");
+      }
+    }
+
+    function save() {
+      localStorage.setItem("gifted_scoreboard_players", JSON.stringify(players));
+      localStorage.setItem("gifted_history", JSON.stringify(history));
+      localStorage.setItem("gifted_sort_mode", sortMode);
+    }
+
+    function getRankIcon(index) {
+      if (index === 0) return "🥇";
+      if (index === 1) return "🥈";
+      if (index === 2) return "🥉";
+      return `#${index + 1}`;
+    }
+
+    function sortPlayers() {
+      if (sortMode === "score_desc") {
+        players.sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
+      } else if (sortMode === "score_asc") {
+        players.sort((a, b) => a.score - b.score || a.name.localeCompare(b.name));
+      } else if (sortMode === "name_asc") {
+        players.sort((a, b) => a.name.localeCompare(b.name));
+      } else if (sortMode === "name_desc") {
+        players.sort((a, b) => b.name.localeCompare(a.name));
+      }
+    }
+
+    function render() {
+      sortPlayers();
+      updateSortLabel();
+
+      document.getElementById("totalPlayers").textContent = players.length;
+      document.getElementById("totalScore").textContent = players.reduce((sum, p) => sum + p.score, 0);
+      document.getElementById("topPlayer").textContent = players.length ? [...players].sort((a, b) => b.score - a.score)[0].name : "-";
+
+      const list = document.getElementById("list");
+      const keyword = (document.getElementById("searchInput")?.value || "").toLowerCase().trim();
+      const filteredPlayers = players.filter(p => !keyword || p.name.toLowerCase().includes(keyword));
+
+      list.innerHTML = "";
+
+      if (players.length === 0) {
+        list.innerHTML = `<div class="empty">ยังไม่มีรายชื่อ กดเพิ่มชื่อด้านบนก่อน</div>`;
+        return;
+      }
+
+      if (filteredPlayers.length === 0) {
+        list.innerHTML = `<div class="empty">ไม่เจอรายชื่อที่ค้นหา</div>`;
+        return;
+      }
+
+      filteredPlayers.forEach((p) => {
+        const realRank = players.findIndex(player => player.id === p.id);
+        const topClass = realRank === 0 ? "top1" : realRank === 1 ? "top2" : realRank === 2 ? "top3" : "";
+        list.innerHTML += `
+          <div class="player ${topClass}">
+            <div class="rank">${getRankIcon(realRank)}</div>
+            <div>
+              <div class="name">${escapeHtml(p.name)}</div>
+              <div class="sub">กด + เพื่อเพิ่มคะแนน / - เพื่อลดคะแนน</div>
+            </div>
+            <div class="score">${p.score}</div>
+            <div class="actions">
+              <button class="plus" onclick="changeScore('${p.id}', 1)">+1</button>
+              <button class="plus" onclick="changeScore('${p.id}', 5)">+5</button>
+              <button class="minus" onclick="changeScore('${p.id}', -1)">-1</button>
+              <button class="ghost" onclick="renamePlayer('${p.id}')">แก้ชื่อ</button>
+              <button class="danger" onclick="removePlayer('${p.id}')">ลบ</button>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function addPlayer() {
+      if (!requireAdmin()) return;
+      const input = document.getElementById("nameInput");
+      const name = input.value.trim();
+      if (!name) return;
+
+      const duplicate = players.some(p => p.name.toLowerCase() === name.toLowerCase());
+      if (duplicate) {
+        alert("มีชื่อนี้อยู่แล้ว");
+        return;
+      }
+
+      const player = { id: makeId(), name, score: 0 };
+      players.push(player);
+      history.unshift({ time: new Date().toLocaleTimeString(), name, change: "เพิ่มชื่อ" });
+      if (history.length > 100) history.pop();
+      lastAction = { type: "add", player };
+      input.value = "";
+      save();
+      render();
+    }
+
+    function changeScore(id, amount) {
+      if (!requireAdmin()) return;
+      const player = players.find(p => p.id === id);
+      if (!player) return;
+
+      player.score += amount;
+      history.unshift({ time: new Date().toLocaleTimeString(), name: player.name, change: amount });
+      if (history.length > 100) history.pop();
+      lastAction = { type: "score", id, amount };
+      save();
+      render();
+    }
+
+    function renamePlayer(id) {
+      if (!requireAdmin()) return;
+      const player = players.find(p => p.id === id);
+      if (!player) return;
+
+      const oldName = player.name;
+      const newName = prompt("ใส่ชื่อใหม่", oldName);
+      if (!newName || !newName.trim()) return;
+
+      const cleanName = newName.trim();
+      const duplicate = players.some(p => p.id !== id && p.name.toLowerCase() === cleanName.toLowerCase());
+      if (duplicate) {
+        alert("มีชื่อนี้อยู่แล้ว");
+        return;
+      }
+
+      player.name = cleanName;
+      history.unshift({ time: new Date().toLocaleTimeString(), name: cleanName, change: `เปลี่ยนชื่อจาก ${oldName}` });
+      if (history.length > 100) history.pop();
+      lastAction = { type: "rename", id, oldName, newName: cleanName };
+      save();
+      render();
+    }
+
+    function removePlayer(id) {
+      if (!requireAdmin()) return;
+      const index = players.findIndex(p => p.id === id);
+      if (index === -1) return;
+
+      const player = players[index];
+      if (!confirm(`ลบ ${player.name} ออกจากบอร์ด?`)) return;
+
+      players.splice(index, 1);
+      history.unshift({ time: new Date().toLocaleTimeString(), name: player.name, change: "ลบชื่อ" });
+      if (history.length > 100) history.pop();
+      lastAction = { type: "remove", player, index };
+      save();
+      render();
+    }
+
+    function resetScoresOnly() {
+      if (!requireAdmin()) return;
+      if (!confirm("รีเซ็ตเฉพาะคะแนนให้เป็น 0 ทั้งหมด? รายชื่อยังอยู่")) return;
+
+      lastAction = { type: "reset", players: JSON.parse(JSON.stringify(players)) };
+      players = players.map(p => ({ ...p, score: 0 }));
+      history.unshift({ time: new Date().toLocaleTimeString(), name: "SYSTEM", change: "รีเซ็ตคะแนนทั้งหมด" });
+      if (history.length > 100) history.pop();
+      save();
+      render();
+    }
+
+    function undoAction() {
+      if (!requireAdmin()) return;
+      if (!lastAction) return alert("ไม่มีอะไรให้ Undo");
+
+      if (lastAction.type === "score") {
+        const player = players.find(p => p.id === lastAction.id);
+        if (player) player.score -= lastAction.amount;
+      } else if (lastAction.type === "add") {
+        players = players.filter(p => p.id !== lastAction.player.id);
+      } else if (lastAction.type === "remove") {
+        players.splice(lastAction.index, 0, lastAction.player);
+      } else if (lastAction.type === "reset") {
+        players = lastAction.players;
+      } else if (lastAction.type === "rename") {
+        const player = players.find(p => p.id === lastAction.id);
+        if (player) player.name = lastAction.oldName;
+      }
+
+      history.unshift({ time: new Date().toLocaleTimeString(), name: "SYSTEM", change: "Undo ล่าสุด" });
+      if (history.length > 100) history.pop();
+      lastAction = null;
+      save();
+      render();
+    }
+
+    function handleEnter(event) {
+      if (event.key === "Enter") addPlayer();
+    }
+
+    function exportData() {
+      const data = {
+        app: "Gifted Scoreboard",
+        version: 2,
+        exportedAt: new Date().toISOString(),
+        sortMode,
+        players,
+        history
+      };
+
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `gifted-scoreboard-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function importData(event) {
+      if (!requireAdmin()) {
+        event.target.value = "";
+        return;
+      }
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          const importedPlayers = Array.isArray(data) ? data : data.players;
+
+          if (!Array.isArray(importedPlayers)) {
+            alert("ไฟล์ไม่ถูกต้อง: ไม่เจอข้อมูล players");
+            return;
+          }
+
+          const cleanPlayers = normalizePlayers(importedPlayers);
+          if (!confirm(`Import รายชื่อ ${cleanPlayers.length} คน? ข้อมูลเดิมจะถูกแทนที่`)) return;
+
+          players = cleanPlayers;
+          history = Array.isArray(data.history) ? data.history : [];
+          sortMode = data.sortMode || sortMode;
+          lastAction = null;
+          save();
+          render();
+          alert("Import สำเร็จ");
+        } catch (err) {
+          alert("อ่านไฟล์ไม่สำเร็จ กรุณาเลือกไฟล์ JSON ที่ถูกต้อง");
+        } finally {
+          event.target.value = "";
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function setSort(mode) {
+      sortMode = mode;
+      save();
+      render();
+    }
+
+    function updateSortLabel() {
+      const label = document.getElementById("sortLabel");
+      if (!label) return;
+      const map = {
+        score_desc: "คะแนน (มาก→น้อย)",
+        score_asc: "คะแนน (น้อย→มาก)",
+        name_asc: "ชื่อ (A→Z)",
+        name_desc: "ชื่อ (Z→A)"
+      };
+      label.textContent = "เรียง: " + (map[sortMode] || "คะแนน (มาก→น้อย)");
+    }
+
+    function toggleHistory() {
+      const modal = document.getElementById("historyModal");
+      const list = document.getElementById("historyList");
+
+      if (!modal || !list) return;
+
+      if (modal.classList.contains("show")) {
+        modal.classList.remove("show");
+        return;
+      }
+
+      if (history.length === 0) {
+        list.innerHTML = `<div class="empty">ยังไม่มีประวัติ ลองเพิ่มชื่อหรือกด +1 ก่อน</div>`;
+      } else {
+        list.innerHTML = history.slice(0, 100).map(h => {
+          const changeText = typeof h.change === "number" && h.change > 0 ? `+${h.change}` : h.change;
+          return `
+            <div class="history-item">
+              <div class="history-time">${escapeHtml(h.time || "-")}</div>
+              <div class="history-name">${escapeHtml(h.name || "-")}</div>
+              <div class="history-change">${escapeHtml(String(changeText))}</div>
+            </div>
+          `;
+        }).join("");
+      }
+
+      modal.classList.add("show");
+    }
+
+    function closeHistory(event) {
+      if (event.target.id === "historyModal") {
+        event.target.classList.remove("show");
+      }
+    }
+
+    function exportImage() {
+      if (typeof html2canvas === "undefined") {
+        alert("Export รูปยังไม่พร้อม หรือโหลด library ไม่สำเร็จ");
+        return;
+      }
+
+      html2canvas(document.querySelector(".app"), {
+        backgroundColor: "#020617",
+        scale: 2
+      }).then(canvas => {
+        const link = document.createElement("a");
+        link.download = "scoreboard.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      });
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement("div");
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    updateAdminButton();
+    save();
+    render();
+  </script>
+</body>
+</html>
