@@ -9,7 +9,6 @@
     * { box-sizing: border-box; }
 
     :root {
-      --black: #000000;
       --bg-main: #020617;
       --bg-soft: #0b0f19;
       --bg-card: #111827;
@@ -22,6 +21,10 @@
       --silver: #e5e7eb;
       --grey: #6b7280;
       --dark-grey: #374151;
+    }
+
+    html {
+      scroll-behavior: smooth;
     }
 
     body {
@@ -49,6 +52,17 @@
       border: 1px solid var(--border);
       overflow: hidden;
       position: relative;
+      backdrop-filter: blur(20px);
+    }
+
+    .phone-board::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(120deg, transparent 20%, rgba(255,255,255,.045), transparent 45%),
+        radial-gradient(circle at 50% 25%, rgba(255,255,255,.08), transparent 28%);
+      pointer-events: none;
     }
 
     .topbar, .hero-title, .rank-banner, .player, .podium, .search-box {
@@ -77,7 +91,12 @@
       object-fit: cover;
       background: var(--bg-main);
       border: 2px solid var(--border-strong);
-      box-shadow: 0 0 20px rgba(255,255,255,.10);
+      animation: logoPulse 2.8s ease-in-out infinite;
+    }
+
+    @keyframes logoPulse {
+      0%, 100% { box-shadow: 0 0 14px rgba(255,255,255,.10); }
+      50% { box-shadow: 0 0 28px rgba(255,255,255,.26); }
     }
 
     .brand {
@@ -179,8 +198,19 @@
       width: 118px;
       height: 118px;
       border-color: #f9fafb;
-      box-shadow: 0 0 36px rgba(255,255,255,.18);
       background: linear-gradient(135deg, #000000, #374151, #9ca3af);
+      animation: topGlow 2.6s ease-in-out infinite;
+    }
+
+    @keyframes topGlow {
+      0%, 100% {
+        box-shadow: 0 0 28px rgba(255,255,255,.18);
+        transform: translateY(0);
+      }
+      50% {
+        box-shadow: 0 0 52px rgba(255,255,255,.34);
+        transform: translateY(-3px);
+      }
     }
 
     .crown {
@@ -236,16 +266,38 @@
       margin-bottom: 18px;
       box-shadow: 0 12px 30px rgba(0,0,0,.34);
       border: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .rank-banner::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -80%;
+      width: 55%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.18), transparent);
+      animation: shine 3.2s ease-in-out infinite;
+    }
+
+    @keyframes shine {
+      0% { left: -80%; }
+      55%, 100% { left: 130%; }
     }
 
     .rank-banner span {
       font-size: 14px;
       color: var(--text-soft);
+      position: relative;
+      z-index: 1;
     }
 
     .rank-banner b {
       font-size: 20px;
       color: white;
+      position: relative;
+      z-index: 1;
     }
 
     .leaderboard-list {
@@ -271,12 +323,28 @@
       padding: 11px 6px;
       border-radius: 18px;
       transition: .15s;
-      border: 1px solid transparent;
+      background: rgba(255,255,255,.025);
+      border: 1px solid rgba(255,255,255,.055);
+      margin-bottom: 8px;
+      backdrop-filter: blur(10px);
+    }
+
+    .player.top1 {
+      border-color: rgba(255,255,255,.28);
+      background: linear-gradient(90deg, rgba(255,255,255,.10), rgba(255,255,255,.025));
+    }
+
+    .player.top2 {
+      border-color: rgba(255,255,255,.18);
+    }
+
+    .player.top3 {
+      border-color: rgba(255,255,255,.14);
     }
 
     .player:hover {
-      background: rgba(255,255,255,.055);
-      border-color: var(--border);
+      background: rgba(255,255,255,.09);
+      box-shadow: 0 8px 24px rgba(0,0,0,.28);
       transform: translateY(-1px);
     }
 
@@ -312,6 +380,11 @@
       font-size: 18px;
       font-weight: 900;
       color: var(--silver);
+      transition: .2s;
+    }
+
+    .player:hover .score {
+      text-shadow: 0 0 10px rgba(255,255,255,.4);
     }
 
     .trend {
@@ -496,10 +569,16 @@
 
       filteredPlayers.forEach((p) => {
         const rank = sorted.findIndex(player => player.id === p.id) + 1;
+
+        const topClass =
+          rank === 1 ? "top1" :
+          rank === 2 ? "top2" :
+          rank === 3 ? "top3" : "";
+
         const arrow = rank <= 3 ? "▲" : "●";
 
         list.innerHTML += `
-          <div class="player">
+          <div class="player ${topClass}">
             <div class="mini-avatar">👤</div>
             <div>
               <div class="name">${escapeHtml(p.name)}</div>
