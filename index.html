@@ -3,150 +3,520 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gifted Scoreboard</title>
+  <title>Gifted Leaderboard</title>
+
   <style>
     * { box-sizing: border-box; }
-    body { margin: 0; font-family: Arial, sans-serif; background: radial-gradient(circle at top, #312e81 0%, #111827 38%, #020617 100%); color: #fff; min-height: 100vh; padding: 14px; }
-    .app { max-width: 1200px; margin: 0 auto; }
-    .header { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 14px; }
-    .title h1 { margin: 0; font-size: 32px; letter-spacing: 0.5px; }
-    .title p { margin: 6px 0 0; color: #9ca3af; }
-    .admin-link { color: #9ca3af; text-decoration: none; font-size: 12px; opacity: .55; }
-    .admin-link:hover { opacity: 1; color: #c7d2fe; }
-    .card { background: rgba(17, 24, 39, 0.88); border: 1px solid rgba(255,255,255,.08); border-radius: 22px; padding: 14px; box-shadow: 0 20px 50px rgba(0,0,0,.35); margin-bottom: 12px; backdrop-filter: blur(14px); }
-    input { width: 100%; padding: 13px 14px; border-radius: 14px; border: 1px solid rgba(255,255,255,.12); background: #020617; color: white; outline: none; font-size: 15px; }
-    input:focus { border-color: #6366f1; }
-    button { border: 0; border-radius: 14px; padding: 10px 13px; color: white; font-weight: 800; cursor: pointer; background: #374151; transition: .15s; white-space: nowrap; }
-    button:hover { transform: translateY(-1px); filter: brightness(1.08); }
-    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-    .stat-box { background: #020617; border: 1px solid rgba(255,255,255,.08); border-radius: 18px; padding: 16px; }
-    .stat-label { color: #9ca3af; font-size: 13px; }
-    .stat-value { font-size: 26px; font-weight: 900; margin-top: 6px; }
-    .board-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; color: #d1d5db; font-size: 14px; gap: 10px; }
-    .player { display: grid; grid-template-columns: 60px 1fr 110px; align-items: center; gap: 12px; background: #020617; border: 1px solid rgba(255,255,255,.08); padding: 12px; border-radius: 16px; margin-bottom: 9px; position: relative; transition: .15s; }
-    .player:hover { transform: translateY(-2px); border-color: rgba(99,102,241,.45); box-shadow: 0 0 20px rgba(124,58,237,.20); }
-    .rank { font-size: 24px; font-weight: 900; text-align: center; }
-    .name { font-size: 18px; font-weight: 900; }
-    .sub { color: #9ca3af; font-size: 12px; margin-top: 4px; }
-    .score { justify-self: end; font-size: 23px; font-weight: 900; color: #c7d2fe; background: linear-gradient(135deg, #7c3aed33, #06b6d433); border: 1px solid rgba(255,255,255,.1); padding: 8px 15px; border-radius: 999px; min-width: 64px; text-align: center; }
-    .empty { text-align: center; color: #9ca3af; padding: 38px 10px; }
-    .leaderboard-list { max-height: 68vh; overflow-y: auto; padding-right: 4px; }
-    .leaderboard-list::-webkit-scrollbar { width: 8px; }
-    .leaderboard-list::-webkit-scrollbar-thumb { background: #374151; border-radius: 999px; }
-    .top1 { border-color: rgba(250,204,21,.9); border-left: 5px solid #facc15; background: linear-gradient(90deg, rgba(250,204,21,.18), #020617); transform: scale(1.01); animation: crownGlow 2.4s ease-in-out infinite; }
-    .top1 .name::before { content: "👑 "; }
-    .top2 { border-left: 5px solid #d1d5db; background: linear-gradient(90deg, rgba(209,213,219,.11), #020617); }
-    .top3 { border-left: 5px solid #b45309; background: linear-gradient(90deg, rgba(180,83,9,.14), #020617); }
-    @keyframes crownGlow { 0%,100% { box-shadow: 0 0 18px rgba(250,204,21,.14); } 50% { box-shadow: 0 0 36px rgba(250,204,21,.34); } }
-    @media (max-width: 760px) {
-      .header, .board-title { display: grid; grid-template-columns: 1fr; }
-      .stats { grid-template-columns: 1fr; }
-      .player { grid-template-columns: 52px 1fr 88px; }
-      .title h1 { font-size: 28px; }
+
+    :root {
+      --black: #000000;
+      --bg-main: #020617;
+      --bg-soft: #0b0f19;
+      --bg-card: #111827;
+      --bg-hover: #1f2937;
+      --border: rgba(255,255,255,.10);
+      --border-strong: rgba(255,255,255,.22);
+      --text-main: #f9fafb;
+      --text-soft: #d1d5db;
+      --text-muted: #9ca3af;
+      --silver: #e5e7eb;
+      --grey: #6b7280;
+      --dark-grey: #374151;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background:
+        radial-gradient(circle at 20% 8%, rgba(255,255,255,.08), transparent 30%),
+        radial-gradient(circle at 85% 20%, rgba(156,163,175,.10), transparent 34%),
+        linear-gradient(135deg, #000000, #020617 48%, #111827);
+      color: var(--text-main);
+      padding: 18px;
+    }
+
+    .phone-board {
+      max-width: 430px;
+      margin: auto;
+      min-height: calc(100vh - 36px);
+      background:
+        radial-gradient(circle at top, rgba(255,255,255,.06), transparent 35%),
+        linear-gradient(180deg, #111827, #070b13 58%, #020617);
+      border-radius: 36px;
+      padding: 24px 18px;
+      box-shadow: 0 30px 80px rgba(0,0,0,.65);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .topbar, .hero-title, .rank-banner, .player, .podium, .search-box {
+      position: relative;
+      z-index: 1;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .gang-logo {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: var(--bg-main);
+      border: 2px solid var(--border-strong);
+      box-shadow: 0 0 20px rgba(255,255,255,.10);
+    }
+
+    .brand {
+      font-weight: 900;
+      font-size: 22px;
+      color: var(--silver);
+      letter-spacing: 1px;
+      white-space: nowrap;
+    }
+
+    .coin {
+      background: rgba(17,24,39,.92);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 8px 13px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-soft);
+    }
+
+    .hero-title {
+      margin-top: 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .hero-title h1 {
+      margin: 0;
+      font-size: 34px;
+      line-height: 1;
+      color: var(--text-main);
+    }
+
+    .hero-title a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 13px;
+    }
+
+    .hero-title a:hover {
+      color: white;
+    }
+
+    .search-box {
+      margin-top: 16px;
+    }
+
+    input {
+      width: 100%;
+      padding: 13px 15px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: rgba(2,6,23,.85);
+      color: white;
+      outline: none;
+      font-size: 15px;
+    }
+
+    input::placeholder {
+      color: rgba(255,255,255,.42);
+    }
+
+    input:focus {
+      border-color: var(--silver);
+      box-shadow: 0 0 18px rgba(255,255,255,.08);
+    }
+
+    .podium {
+      margin: 34px 0 26px;
+      display: grid;
+      grid-template-columns: 1fr 1.25fr 1fr;
+      align-items: end;
+      gap: 8px;
+    }
+
+    .podium-card {
+      text-align: center;
+    }
+
+    .avatar {
+      width: 76px;
+      height: 76px;
+      margin: auto;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, #111827, #374151, #6b7280);
+      border: 3px solid rgba(229,231,235,.75);
+      font-size: 30px;
+      font-weight: 900;
+      box-shadow: 0 0 24px rgba(255,255,255,.10);
+      position: relative;
+    }
+
+    .podium-card.top .avatar {
+      width: 118px;
+      height: 118px;
+      border-color: #f9fafb;
+      box-shadow: 0 0 36px rgba(255,255,255,.18);
+      background: linear-gradient(135deg, #000000, #374151, #9ca3af);
+    }
+
+    .crown {
+      position: absolute;
+      top: -28px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 24px;
+      filter: grayscale(1);
+    }
+
+    .badge {
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--silver);
+      color: #111827;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .podium-name {
+      margin-top: 16px;
+      font-size: 13px;
+      font-weight: 800;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--text-soft);
+    }
+
+    .podium-score {
+      margin-top: 4px;
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 900;
+    }
+
+    .rank-banner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 17px 20px;
+      border-radius: 20px;
+      background: linear-gradient(90deg, #020617, #1f2937, #374151);
+      font-weight: 900;
+      margin-bottom: 18px;
+      box-shadow: 0 12px 30px rgba(0,0,0,.34);
+      border: 1px solid var(--border);
+    }
+
+    .rank-banner span {
+      font-size: 14px;
+      color: var(--text-soft);
+    }
+
+    .rank-banner b {
+      font-size: 20px;
+      color: white;
+    }
+
+    .leaderboard-list {
+      max-height: 45vh;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .leaderboard-list::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .leaderboard-list::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,.18);
+      border-radius: 999px;
+    }
+
+    .player {
+      display: grid;
+      grid-template-columns: 52px 1fr 45px 30px;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 6px;
+      border-radius: 18px;
+      transition: .15s;
+      border: 1px solid transparent;
+    }
+
+    .player:hover {
+      background: rgba(255,255,255,.055);
+      border-color: var(--border);
+      transform: translateY(-1px);
+    }
+
+    .mini-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, #020617, #1f2937, #4b5563);
+      font-weight: 900;
+      border: 2px solid var(--border);
+      filter: grayscale(1);
+    }
+
+    .name {
+      font-size: 16px;
+      font-weight: 900;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--text-main);
+    }
+
+    .sub {
+      margin-top: 3px;
+      font-size: 11px;
+      color: rgba(255,255,255,.42);
+    }
+
+    .score {
+      text-align: right;
+      font-size: 18px;
+      font-weight: 900;
+      color: var(--silver);
+    }
+
+    .trend {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: rgba(255,255,255,.08);
+      color: var(--silver);
+      font-size: 12px;
+    }
+
+    .empty {
+      text-align: center;
+      color: rgba(255,255,255,.55);
+      padding: 36px 10px;
+    }
+
+    @media (max-width: 480px) {
+      body { padding: 0; }
+
+      .phone-board {
+        max-width: none;
+        min-height: 100vh;
+        border-radius: 0;
+      }
     }
   </style>
 </head>
+
 <body>
-  <div class="app">
-    <div class="header">
-      <div class="title">
-        <h1>🏆 Gifted Scoreboard</h1>
-        <p>จดคะแนน Loop</p>
+  <div class="phone-board">
+    <div class="topbar">
+      <div class="logo-wrap">
+        <img class="gang-logo" src="gang-logo.png" alt="Gang Logo" />
+        <div class="brand">GIFTED</div>
       </div>
-      <a class="admin-link" href="admin.html">Admin</a>
+
+      <div class="coin">คะแนน <span id="totalScore">0</span></div>
     </div>
 
-    <div class="card stats">
-      <div class="stat-box"><div class="stat-label">จำนวนผู้เล่น</div><div class="stat-value" id="totalPlayers">0</div></div>
-      <div class="stat-box"><div class="stat-label">คะแนนรวม</div><div class="stat-value" id="totalScore">0</div></div>
-      <div class="stat-box"><div class="stat-label">อันดับ 1 ตอนนี้</div><div class="stat-value" id="topPlayer">-</div></div>
+    <div class="hero-title">
+      <h1>Leaderboard</h1>
+      <a href="admin.html">Admin</a>
     </div>
 
-    <div class="card">
-      <div class="board-title">
-        <input id="searchInput" placeholder="🔍 ค้นหาชื่อ..." style="max-width:220px; padding:8px 12px;" oninput="render()" />
-        <b>Leaderboard</b>
-        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-          <span id="sortLabel">เรียง: คะแนน (มาก→น้อย)</span>
-          <button onclick="setSort('score_desc')">คะแนน↓</button>
-          <button onclick="setSort('score_asc')">คะแนน↑</button>
-          <button onclick="setSort('name_asc')">A→Z</button>
-          <button onclick="setSort('name_desc')">Z→A</button>
-        </div>
-      </div>
-      <div id="list" class="leaderboard-list"></div>
+    <div class="search-box">
+      <input id="searchInput" placeholder="🔍 ค้นหาชื่อ..." oninput="render()" />
     </div>
+
+    <div id="podium" class="podium"></div>
+
+    <div class="rank-banner">
+      <span>จำนวนผู้เล่นทั้งหมด</span>
+      <b id="totalPlayers">0</b>
+    </div>
+
+    <div id="list" class="leaderboard-list"></div>
   </div>
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbxuf93a0mwC0gAf5xboU1_4Nk6WoBoREZIh40OqP7guGDpDykBUJIdFvcCpZAtXEucdpg/exec";
+
     let players = [];
-    let sortMode = localStorage.getItem("gifted_sort_mode") || "score_desc";
     let isLoading = false;
 
-    function makeId() { return "p_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 8); }
+    function makeId() {
+      return "p_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 8);
+    }
+
     function normalizePlayers(list) {
       return list
         .filter(p => p && typeof p.name === "string")
-        .map(p => ({ id: String(p.id || makeId()), name: p.name.trim(), score: Number.isFinite(Number(p.score)) ? Number(p.score) : 0 }))
+        .map(p => ({
+          id: String(p.id || makeId()),
+          name: p.name.trim(),
+          score: Number.isFinite(Number(p.score)) ? Number(p.score) : 0
+        }))
         .filter(p => p.name.length > 0);
     }
-    function setLoading(value) { isLoading = value; }
+
     async function loadPlayers(silent = false) {
       try {
-        if (!silent) { setLoading(true); render(); }
+        if (!silent) {
+          isLoading = true;
+          render();
+        }
+
         const res = await fetch(API_URL + "?t=" + Date.now());
         const data = await res.json();
+
         if (!data.ok) throw new Error(data.error || "โหลดข้อมูลไม่สำเร็จ");
+
         players = normalizePlayers(data.players || []);
         localStorage.setItem("gifted_players_backup", JSON.stringify(players));
       } catch (err) {
         const backup = JSON.parse(localStorage.getItem("gifted_players_backup") || "[]");
-        if (backup.length) players = normalizePlayers(backup);
-        else if (!silent) document.getElementById("list").innerHTML = `<div class="empty">โหลดข้อมูลไม่สำเร็จ: ${escapeHtml(err.message)}</div>`;
+
+        if (backup.length) {
+          players = normalizePlayers(backup);
+        } else {
+          document.getElementById("list").innerHTML =
+            `<div class="empty">โหลดข้อมูลไม่สำเร็จ: ${escapeHtml(err.message)}</div>`;
+        }
       } finally {
-        if (!silent) setLoading(false);
+        isLoading = false;
         render();
       }
     }
-    function getRankIcon(index) { if (index === 0) return "🥇"; if (index === 1) return "🥈"; if (index === 2) return "🥉"; return `#${index + 1}`; }
+
     function sortPlayers() {
-      if (sortMode === "score_desc") players.sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
-      else if (sortMode === "score_asc") players.sort((a, b) => a.score - b.score || a.name.localeCompare(b.name));
-      else if (sortMode === "name_asc") players.sort((a, b) => a.name.localeCompare(b.name));
-      else if (sortMode === "name_desc") players.sort((a, b) => b.name.localeCompare(a.name));
+      players.sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
     }
+
+    function renderPodium(sorted) {
+      const podium = document.getElementById("podium");
+
+      if (sorted.length === 0) {
+        podium.innerHTML = "";
+        return;
+      }
+
+      const first = sorted[0];
+      const second = sorted[1];
+      const third = sorted[2];
+
+      podium.innerHTML = `
+        ${second ? podiumCard(second, 2, false) : `<div></div>`}
+        ${first ? podiumCard(first, 1, true) : `<div></div>`}
+        ${third ? podiumCard(third, 3, false) : `<div></div>`}
+      `;
+    }
+
+    function podiumCard(player, rank, isTop) {
+      return `
+        <div class="podium-card ${isTop ? "top" : ""}">
+          <div class="avatar">
+            ${isTop ? `<div class="crown">👑</div>` : ""}
+            👤
+            <div class="badge">${rank}</div>
+          </div>
+          <div class="podium-name">${escapeHtml(player.name)}</div>
+          <div class="podium-score">${player.score}</div>
+        </div>
+      `;
+    }
+
     function render() {
-      sortPlayers(); updateSortLabel();
+      sortPlayers();
+
+      const totalScore = players.reduce((sum, p) => sum + p.score, 0);
       document.getElementById("totalPlayers").textContent = players.length;
-      document.getElementById("totalScore").textContent = players.reduce((sum, p) => sum + p.score, 0);
-      document.getElementById("topPlayer").textContent = players.length ? [...players].sort((a, b) => b.score - a.score)[0].name : "-";
+      document.getElementById("totalScore").textContent = totalScore;
+
       const list = document.getElementById("list");
       const keyword = (document.getElementById("searchInput")?.value || "").toLowerCase().trim();
-      const filteredPlayers = players.filter(p => !keyword || p.name.toLowerCase().includes(keyword));
+
+      const sorted = [...players].sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
+      renderPodium(sorted);
+
+      const filteredPlayers = sorted.filter(p =>
+        !keyword || p.name.toLowerCase().includes(keyword)
+      );
+
       list.innerHTML = "";
-      if (isLoading) { list.innerHTML = `<div class="empty">กำลังโหลดข้อมูลจาก Google Sheet...</div>`; return; }
-      if (players.length === 0) { list.innerHTML = `<div class="empty">ยังไม่มีรายชื่อ</div>`; return; }
-      if (filteredPlayers.length === 0) { list.innerHTML = `<div class="empty">ไม่เจอรายชื่อที่ค้นหา</div>`; return; }
+
+      if (isLoading) {
+        list.innerHTML = `<div class="empty">กำลังโหลดข้อมูลจาก Google Sheet...</div>`;
+        return;
+      }
+
+      if (players.length === 0) {
+        list.innerHTML = `<div class="empty">ยังไม่มีรายชื่อ</div>`;
+        return;
+      }
+
+      if (filteredPlayers.length === 0) {
+        list.innerHTML = `<div class="empty">ไม่เจอรายชื่อที่ค้นหา</div>`;
+        return;
+      }
+
       filteredPlayers.forEach((p) => {
-        const realRank = players.findIndex(player => player.id === p.id);
-        const topClass = realRank === 0 ? "top1" : realRank === 1 ? "top2" : realRank === 2 ? "top3" : "";
+        const rank = sorted.findIndex(player => player.id === p.id) + 1;
+        const arrow = rank <= 3 ? "▲" : "●";
+
         list.innerHTML += `
-          <div class="player ${topClass}">
-            <div class="rank">${getRankIcon(realRank)}</div>
-            <div><div class="name">${escapeHtml(p.name)}</div><div class="sub">ข้อมูลกลางจาก Google Sheet</div></div>
+          <div class="player">
+            <div class="mini-avatar">👤</div>
+            <div>
+              <div class="name">${escapeHtml(p.name)}</div>
+              <div class="sub">Rank #${rank}</div>
+            </div>
             <div class="score">${p.score}</div>
-          </div>`;
+            <div class="trend">${arrow}</div>
+          </div>
+        `;
       });
     }
-    function setSort(mode) { sortMode = mode; localStorage.setItem("gifted_sort_mode", sortMode); render(); }
-    function updateSortLabel() {
-      const label = document.getElementById("sortLabel");
-      if (!label) return;
-      const map = { score_desc: "คะแนน (มาก→น้อย)", score_asc: "คะแนน (น้อย→มาก)", name_asc: "ชื่อ (A→Z)", name_desc: "ชื่อ (Z→A)" };
-      label.textContent = "เรียง: " + (map[sortMode] || "คะแนน (มาก→น้อย)");
+
+    function escapeHtml(text) {
+      const div = document.createElement("div");
+      div.textContent = text;
+      return div.innerHTML;
     }
-    function escapeHtml(text) { const div = document.createElement("div"); div.textContent = text; return div.innerHTML; }
 
     render();
     loadPlayers();
