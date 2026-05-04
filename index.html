@@ -6,69 +6,43 @@
   <title>Gifted Scoreboard</title>
   <style>
     * { box-sizing: border-box; }
-    body { margin: 0; font-family: Arial, sans-serif; background: linear-gradient(135deg, #0b0f1a, #111827, #020617); color: #fff; min-height: 100vh; padding: 14px; }
+    body { margin: 0; font-family: Arial, sans-serif; background: radial-gradient(circle at top, #312e81 0%, #111827 38%, #020617 100%); color: #fff; min-height: 100vh; padding: 14px; }
     .app { max-width: 1200px; margin: 0 auto; }
     .header { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 14px; }
-    .title h1 { margin: 0; font-size: 30px; letter-spacing: 0.5px; }
+    .title h1 { margin: 0; font-size: 32px; letter-spacing: 0.5px; }
     .title p { margin: 6px 0 0; color: #9ca3af; }
-    .card { background: rgba(17, 24, 39, 0.9); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; padding: 14px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35); margin-bottom: 12px; }
-    .controls { display: grid; grid-template-columns: minmax(220px, 1fr) repeat(4, auto); gap: 10px; align-items: center; }
-    input { width: 100%; padding: 13px 14px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.12); background: #020617; color: white; outline: none; font-size: 15px; }
+    .admin-link { color: #9ca3af; text-decoration: none; font-size: 12px; opacity: .55; }
+    .admin-link:hover { opacity: 1; color: #c7d2fe; }
+    .card { background: rgba(17, 24, 39, 0.88); border: 1px solid rgba(255,255,255,.08); border-radius: 22px; padding: 14px; box-shadow: 0 20px 50px rgba(0,0,0,.35); margin-bottom: 12px; backdrop-filter: blur(14px); }
+    input { width: 100%; padding: 13px 14px; border-radius: 14px; border: 1px solid rgba(255,255,255,.12); background: #020617; color: white; outline: none; font-size: 15px; }
     input:focus { border-color: #6366f1; }
-    button { border: 0; border-radius: 14px; padding: 12px 14px; color: white; font-weight: 700; cursor: pointer; background: #4f46e5; transition: 0.15s; white-space: nowrap; }
-    button:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.08); }
-    button:disabled { opacity: 0.55; cursor: not-allowed; }
-    .danger { background: #dc2626; }
-    .ghost { background: #374151; }
-    .admin-on { background: #16a34a; }
-    .admin-off { background: #7f1d1d; }
+    button { border: 0; border-radius: 14px; padding: 10px 13px; color: white; font-weight: 800; cursor: pointer; background: #374151; transition: .15s; white-space: nowrap; }
+    button:hover { transform: translateY(-1px); filter: brightness(1.08); }
     .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-    .stat-box { background: #020617; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 14px; }
+    .stat-box { background: #020617; border: 1px solid rgba(255,255,255,.08); border-radius: 18px; padding: 16px; }
     .stat-label { color: #9ca3af; font-size: 13px; }
-    .stat-value { font-size: 22px; font-weight: 800; margin-top: 6px; }
-    .board-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; color: #d1d5db; font-size: 14px; gap: 10px; }
-    .player { display: grid; grid-template-columns: 60px 1fr 90px 190px; align-items: center; gap: 12px; background: #020617; border: 1px solid rgba(255, 255, 255, 0.08); padding: 10px; border-radius: 14px; margin-bottom: 8px; }
-    .rank { font-size: 22px; font-weight: 900; text-align: center; }
-    .name { font-size: 17px; font-weight: 800; }
+    .stat-value { font-size: 26px; font-weight: 900; margin-top: 6px; }
+    .board-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; color: #d1d5db; font-size: 14px; gap: 10px; }
+    .player { display: grid; grid-template-columns: 60px 1fr 110px; align-items: center; gap: 12px; background: #020617; border: 1px solid rgba(255,255,255,.08); padding: 12px; border-radius: 16px; margin-bottom: 9px; position: relative; transition: .15s; }
+    .player:hover { transform: translateY(-2px); border-color: rgba(99,102,241,.45); box-shadow: 0 0 20px rgba(124,58,237,.20); }
+    .rank { font-size: 24px; font-weight: 900; text-align: center; }
+    .name { font-size: 18px; font-weight: 900; }
     .sub { color: #9ca3af; font-size: 12px; margin-top: 4px; }
-    .score { text-align: right; font-size: 22px; font-weight: 900; color: #a5b4fc; }
-    .actions { display: flex; justify-content: flex-end; gap: 6px; flex-wrap: nowrap; }
-    .actions button { padding: 8px 10px; border-radius: 10px; min-width: 38px; font-size: 13px; }
-    .plus { background: #16a34a; }
-    .minus { background: #f97316; }
-    .empty { text-align: center; color: #9ca3af; padding: 35px 10px; }
-    .leaderboard-list { max-height: 62vh; overflow-y: auto; padding-right: 4px; }
+    .score { justify-self: end; font-size: 23px; font-weight: 900; color: #c7d2fe; background: linear-gradient(135deg, #7c3aed33, #06b6d433); border: 1px solid rgba(255,255,255,.1); padding: 8px 15px; border-radius: 999px; min-width: 64px; text-align: center; }
+    .empty { text-align: center; color: #9ca3af; padding: 38px 10px; }
+    .leaderboard-list { max-height: 68vh; overflow-y: auto; padding-right: 4px; }
     .leaderboard-list::-webkit-scrollbar { width: 8px; }
     .leaderboard-list::-webkit-scrollbar-thumb { background: #374151; border-radius: 999px; }
-    .top1 { border-color: rgba(250, 204, 21, 0.85); border-left: 5px solid #facc15; background: linear-gradient(90deg, rgba(250, 204, 21, 0.18), #020617); box-shadow: 0 0 24px rgba(250, 204, 21, 0.15); transform: scale(1.01); }
+    .top1 { border-color: rgba(250,204,21,.9); border-left: 5px solid #facc15; background: linear-gradient(90deg, rgba(250,204,21,.18), #020617); transform: scale(1.01); animation: crownGlow 2.4s ease-in-out infinite; }
     .top1 .name::before { content: "👑 "; }
-    @keyframes crownGlow { 0%, 100% { box-shadow: 0 0 18px rgba(250, 204, 21, 0.12); } 50% { box-shadow: 0 0 34px rgba(250, 204, 21, 0.32); } }
-    .top1 { animation: crownGlow 2.4s ease-in-out infinite; }
-    @keyframes scoreBump { 0% { transform: scale(1); } 35% { transform: scale(1.24); } 100% { transform: scale(1); } }
-    .score.bump { animation: scoreBump 0.45s ease; color: #facc15; }
-    .player { position: relative; }
-    .float-score { position: absolute; right: 210px; top: 18px; font-weight: 900; color: #facc15; pointer-events: none; animation: floatScore 0.75s ease-out forwards; }
-    @keyframes floatScore { 0% { opacity: 0; transform: translateY(10px) scale(0.9); } 20% { opacity: 1; } 100% { opacity: 0; transform: translateY(-24px) scale(1.1); } }
-    .top2 { border-color: rgba(209, 213, 219, 0.45); }
-    .top3 { border-color: rgba(180, 83, 9, 0.6); }
-    .modal-backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.65); display: none; align-items: center; justify-content: center; padding: 16px; z-index: 999; }
-    .modal-backdrop.show { display: flex; }
-    .modal { width: min(680px, 100%); max-height: 80vh; overflow: hidden; background: #111827; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 20px; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5); }
-    .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
-    .modal-header h2 { margin: 0; font-size: 20px; }
-    .history-list { max-height: 55vh; overflow-y: auto; padding: 12px 16px 16px; }
-    .history-item { display: grid; grid-template-columns: 90px 1fr auto; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.07); color: #e5e7eb; }
-    .history-time { color: #9ca3af; font-size: 13px; }
-    .history-name { font-weight: 800; }
-    .history-change { font-weight: 900; color: #a5b4fc; }
+    .top2 { border-left: 5px solid #d1d5db; background: linear-gradient(90deg, rgba(209,213,219,.11), #020617); }
+    .top3 { border-left: 5px solid #b45309; background: linear-gradient(90deg, rgba(180,83,9,.14), #020617); }
+    @keyframes crownGlow { 0%,100% { box-shadow: 0 0 18px rgba(250,204,21,.14); } 50% { box-shadow: 0 0 36px rgba(250,204,21,.34); } }
     @media (max-width: 760px) {
-      body { padding: 14px; }
-      .header, .controls { grid-template-columns: 1fr; display: grid; }
+      .header, .board-title { display: grid; grid-template-columns: 1fr; }
       .stats { grid-template-columns: 1fr; }
-      .board-title { display: grid; grid-template-columns: 1fr; }
-      .player { grid-template-columns: 52px 1fr; }
-      .score { text-align: left; grid-column: 2; }
-      .actions { grid-column: 1 / -1; justify-content: flex-start; }
+      .player { grid-template-columns: 52px 1fr 88px; }
+      .title h1 { font-size: 28px; }
     }
   </style>
 </head>
@@ -79,17 +53,7 @@
         <h1>🏆 Gifted Scoreboard</h1>
         <p>จดคะแนน Loop</p>
       </div>
-    </div>
-
-    <div class="card">
-      <div class="controls">
-        <input id="nameInput" placeholder="ใส่ชื่อเพื่อน เช่น G1, Mix, Boss" onkeydown="handleEnter(event)" />
-        <button onclick="addPlayer()">+ เพิ่มชื่อ</button>
-        <button id="adminBtn" class="admin-off" onclick="toggleAdmin()">🔒 Admin Lock</button>
-        <button class="danger" onclick="resetScoresOnly()">รีเซ็ตคะแนน</button>
-        <button class="ghost" onclick="undoAction()">Undo</button>
-        <button class="ghost" onclick="toggleHistory()">History</button>
-      </div>
+      <a class="admin-link" href="admin.html">Admin</a>
     </div>
 
     <div class="card stats">
@@ -100,174 +64,60 @@
 
     <div class="card">
       <div class="board-title">
-        <input id="searchInput" placeholder="🔍 ค้นหาชื่อ..." style="max-width:180px; padding:6px 10px; border-radius:10px; border:1px solid rgba(255,255,255,0.2); background:#020617; color:white;" oninput="render()" />
+        <input id="searchInput" placeholder="🔍 ค้นหาชื่อ..." style="max-width:220px; padding:8px 12px;" oninput="render()" />
         <b>Leaderboard</b>
         <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
           <span id="sortLabel">เรียง: คะแนน (มาก→น้อย)</span>
-          <button class="ghost" onclick="setSort('score_desc')">คะแนน↓</button>
-          <button class="ghost" onclick="setSort('score_asc')">คะแนน↑</button>
-          <button class="ghost" onclick="setSort('name_asc')">A→Z</button>
-          <button class="ghost" onclick="setSort('name_desc')">Z→A</button>
+          <button onclick="setSort('score_desc')">คะแนน↓</button>
+          <button onclick="setSort('score_asc')">คะแนน↑</button>
+          <button onclick="setSort('name_asc')">A→Z</button>
+          <button onclick="setSort('name_desc')">Z→A</button>
         </div>
       </div>
       <div id="list" class="leaderboard-list"></div>
     </div>
   </div>
 
-  <div id="historyModal" class="modal-backdrop" onclick="closeHistory(event)">
-    <div class="modal" onclick="event.stopPropagation()">
-      <div class="modal-header"><h2>📜 History Log</h2><button class="ghost" onclick="toggleHistory()">ปิด</button></div>
-      <div id="historyList" class="history-list"></div>
-    </div>
-  </div>
-
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbxuf93a0mwC0gAf5xboU1_4Nk6WoBoREZIh40OqP7guGDpDykBUJIdFvcCpZAtXEucdpg/exec";
-
     let players = [];
-    let history = JSON.parse(localStorage.getItem("gifted_history")) || [];
-    let lastAction = JSON.parse(sessionStorage.getItem("gifted_last_action") || "null");
     let sortMode = localStorage.getItem("gifted_sort_mode") || "score_desc";
-    let isAdmin = sessionStorage.getItem("gifted_admin_unlocked") === "true";
-    let adminPassword = sessionStorage.getItem("gifted_admin_password") || "";
     let isLoading = false;
-    let lastScoreChangedId = null;
 
     function makeId() { return "p_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 8); }
-
     function normalizePlayers(list) {
       return list
         .filter(p => p && typeof p.name === "string")
         .map(p => ({ id: String(p.id || makeId()), name: p.name.trim(), score: Number.isFinite(Number(p.score)) ? Number(p.score) : 0 }))
         .filter(p => p.name.length > 0);
     }
-
-    function saveLocal() {
-      localStorage.setItem("gifted_history", JSON.stringify(history));
-      localStorage.setItem("gifted_sort_mode", sortMode);
-      localStorage.setItem("gifted_players_backup", JSON.stringify(players));
-      if (lastAction) sessionStorage.setItem("gifted_last_action", JSON.stringify(lastAction));
-      else sessionStorage.removeItem("gifted_last_action");
-    }
-
+    function setLoading(value) { isLoading = value; }
     async function loadPlayers(silent = false) {
-    try {
-    if (!silent) {
-      setLoading(true);
-      render();
-    }
-
-    const res = await fetch(API_URL + "?t=" + Date.now());
-    const data = await res.json();
-
-    if (!data.ok) throw new Error(data.error || "โหลดข้อมูลไม่สำเร็จ");
-
-    players = normalizePlayers(data.players || []);
-    localStorage.setItem("gifted_players_backup", JSON.stringify(players));
-
-    } catch (err) {
-    const backup = JSON.parse(localStorage.getItem("gifted_players_backup") || "[]");
-
-    if (backup.length) {
-      players = normalizePlayers(backup);
-      console.warn("ใช้ข้อมูลสำรองจากเครื่อง", err);
-    } else if (!silent) {
-      alert("โหลดข้อมูลจาก Google Sheet ไม่สำเร็จ: " + err.message);
-    }
-
-    } finally {
-    if (!silent) setLoading(false);
-    render();
-    }
-  }
-
-    async function apiPost(payload) {
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({ ...payload, password: adminPassword })
-      });
-      const data = await res.json();
-      if (!data.ok) throw new Error(data.error || "บันทึกข้อมูลไม่สำเร็จ");
-      return data;
-    }
-
-    async function checkPassword(password) {
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({ action: "checkPassword", password })
-      });
-      return await res.json();
-    }
-
-    function setLoading(value) {
-      isLoading = value;
-      document.querySelectorAll("button").forEach(btn => { if (btn.id !== "adminBtn") btn.disabled = value; });
-    }
-
-    function requireAdmin() {
-      if (isAdmin && adminPassword) return true;
-      alert("ต้องปลดล็อก Admin ก่อน ถึงจะแก้คะแนน/รายชื่อได้");
-      return false;
-    }
-
-    async function toggleAdmin() {
-      if (isAdmin) {
-        isAdmin = false;
-        adminPassword = "";
-        sessionStorage.removeItem("gifted_admin_unlocked");
-        sessionStorage.removeItem("gifted_admin_password");
-        updateAdminButton();
-        return;
-      }
-
-      const pass = prompt("ใส่รหัส Admin");
-      if (!pass || !pass.trim()) return;
-
       try {
-        setLoading(true);
-        const data = await checkPassword(pass.trim());
-        if (!data.ok) {
-          alert("รหัส Admin ไม่ถูกต้อง");
-          return;
-        }
-        adminPassword = pass.trim();
-        isAdmin = true;
-        sessionStorage.setItem("gifted_admin_unlocked", "true");
-        sessionStorage.setItem("gifted_admin_password", adminPassword);
-        updateAdminButton();
-        alert("ปลดล็อก Admin สำเร็จ");
+        if (!silent) { setLoading(true); render(); }
+        const res = await fetch(API_URL + "?t=" + Date.now());
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error || "โหลดข้อมูลไม่สำเร็จ");
+        players = normalizePlayers(data.players || []);
+        localStorage.setItem("gifted_players_backup", JSON.stringify(players));
       } catch (err) {
-        alert("เช็กรหัสไม่สำเร็จ: " + err.message);
+        const backup = JSON.parse(localStorage.getItem("gifted_players_backup") || "[]");
+        if (backup.length) players = normalizePlayers(backup);
+        else if (!silent) document.getElementById("list").innerHTML = `<div class="empty">โหลดข้อมูลไม่สำเร็จ: ${escapeHtml(err.message)}</div>`;
       } finally {
-        setLoading(false);
+        if (!silent) setLoading(false);
+        render();
       }
     }
-
-    function updateAdminButton() {
-      const btn = document.getElementById("adminBtn");
-      if (!btn) return;
-      if (isAdmin) {
-        btn.textContent = "🔓 Admin Unlocked";
-        btn.classList.remove("admin-off"); btn.classList.add("admin-on");
-      } else {
-        btn.textContent = "🔒 Admin Lock";
-        btn.classList.remove("admin-on"); btn.classList.add("admin-off");
-      }
-    }
-
     function getRankIcon(index) { if (index === 0) return "🥇"; if (index === 1) return "🥈"; if (index === 2) return "🥉"; return `#${index + 1}`; }
-
     function sortPlayers() {
       if (sortMode === "score_desc") players.sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
       else if (sortMode === "score_asc") players.sort((a, b) => a.score - b.score || a.name.localeCompare(b.name));
       else if (sortMode === "name_asc") players.sort((a, b) => a.name.localeCompare(b.name));
       else if (sortMode === "name_desc") players.sort((a, b) => b.name.localeCompare(a.name));
     }
-
     function render() {
-      sortPlayers(); updateSortLabel(); updateAdminButton();
+      sortPlayers(); updateSortLabel();
       document.getElementById("totalPlayers").textContent = players.length;
       document.getElementById("totalScore").textContent = players.reduce((sum, p) => sum + p.score, 0);
       document.getElementById("topPlayer").textContent = players.length ? [...players].sort((a, b) => b.score - a.score)[0].name : "-";
@@ -276,7 +126,7 @@
       const filteredPlayers = players.filter(p => !keyword || p.name.toLowerCase().includes(keyword));
       list.innerHTML = "";
       if (isLoading) { list.innerHTML = `<div class="empty">กำลังโหลดข้อมูลจาก Google Sheet...</div>`; return; }
-      if (players.length === 0) { list.innerHTML = `<div class="empty">ยังไม่มีรายชื่อ กดปลดล็อก Admin แล้วเพิ่มชื่อก่อน</div>`; return; }
+      if (players.length === 0) { list.innerHTML = `<div class="empty">ยังไม่มีรายชื่อ</div>`; return; }
       if (filteredPlayers.length === 0) { list.innerHTML = `<div class="empty">ไม่เจอรายชื่อที่ค้นหา</div>`; return; }
       filteredPlayers.forEach((p) => {
         const realRank = players.findIndex(player => player.id === p.id);
@@ -285,180 +135,29 @@
           <div class="player ${topClass}">
             <div class="rank">${getRankIcon(realRank)}</div>
             <div><div class="name">${escapeHtml(p.name)}</div><div class="sub">ข้อมูลกลางจาก Google Sheet</div></div>
-            <div class="score ${lastScoreChangedId === p.id ? 'bump' : ''}" data-score-id="${p.id}">${p.score}</div>
-            <div class="actions">
-              <button class="plus" onclick="changeScore('${p.id}', 1)">+1</button>
-              <button class="plus" onclick="changeScore('${p.id}', 5)">+5</button>
-              <button class="minus" onclick="changeScore('${p.id}', -1)">-1</button>
-              <button class="danger" onclick="removePlayer('${p.id}')">ลบ</button>
-            </div>
+            <div class="score">${p.score}</div>
           </div>`;
       });
     }
-
-
-    function showScoreFeedback(id, amount) {
-      const scoreEl = document.querySelector(`[data-score-id="${id}"]`);
-      const playerEl = scoreEl?.closest(".player");
-      if (!scoreEl || !playerEl) return;
-
-      const float = document.createElement("div");
-      float.className = "float-score";
-      float.textContent = amount > 0 ? `+${amount}` : String(amount);
-      playerEl.appendChild(float);
-      setTimeout(() => float.remove(), 800);
-
-      setTimeout(() => {
-        if (lastScoreChangedId === id) {
-          lastScoreChangedId = null;
-          render();
-        }
-      }, 520);
-    }
-
-    async function addPlayer() {
-      if (!requireAdmin()) return;
-      const input = document.getElementById("nameInput");
-      const name = input.value.trim();
-      if (!name) return;
-      if (players.some(p => p.name.toLowerCase() === name.toLowerCase())) return alert("มีชื่อนี้อยู่แล้ว");
-      const player = { id: makeId(), name, score: 0 };
-      try {
-        setLoading(true);
-        await apiPost({ action: "add", id: player.id, name: player.name });
-        history.unshift({ time: new Date().toLocaleTimeString(), name, change: "เพิ่มชื่อ" });
-        if (history.length > 100) history.pop();
-        lastAction = { type: "add", player };
-        input.value = ""; saveLocal(); await loadPlayers();
-      } catch (err) { alert(err.message); }
-      finally { setLoading(false); }
-    }
-
-    async function changeScore(id, amount) {
-      if (!requireAdmin()) return;
-      const player = players.find(p => p.id === id);
-      if (!player) return;
-
-      const oldScore = player.score;
-      player.score = oldScore + amount;
-      lastScoreChangedId = id;
-      history.unshift({ time: new Date().toLocaleTimeString(), name: player.name, change: amount });
-      if (history.length > 100) history.pop();
-      lastAction = { type: "score", id, amount };
-      saveLocal();
-      render();
-      showScoreFeedback(id, amount);
-
-      try {
-        await apiPost({ action: "score", id, amount });
-        await loadPlayers();
-      } catch (err) {
-        player.score = oldScore;
-        lastScoreChangedId = null;
-        render();
-        alert("บันทึกคะแนนไม่สำเร็จ ระบบย้อนค่ากลับแล้ว: " + err.message);
-      }
-    }
-
-    async function removePlayer(id) {
-      if (!requireAdmin()) return;
-      const player = players.find(p => p.id === id);
-      if (!player) return;
-      if (!confirm(`ลบ ${player.name} ออกจากบอร์ด?`)) return;
-      try {
-        setLoading(true);
-        await apiPost({ action: "delete", id });
-        history.unshift({ time: new Date().toLocaleTimeString(), name: player.name, change: "ลบชื่อ" });
-        if (history.length > 100) history.pop();
-        lastAction = { type: "remove", player };
-        saveLocal(); await loadPlayers();
-      } catch (err) { alert(err.message); }
-      finally { setLoading(false); }
-    }
-
-    async function resetScoresOnly() {
-      if (!requireAdmin()) return;
-      if (!confirm("รีเซ็ตเฉพาะคะแนนให้เป็น 0 ทั้งหมด? รายชื่อยังอยู่")) return;
-      try {
-        setLoading(true);
-        const backup = JSON.parse(JSON.stringify(players));
-        await apiPost({ action: "resetScores" });
-        history.unshift({ time: new Date().toLocaleTimeString(), name: "SYSTEM", change: "รีเซ็ตคะแนนทั้งหมด" });
-        if (history.length > 100) history.pop();
-        lastAction = { type: "reset", players: backup };
-        saveLocal(); await loadPlayers();
-      } catch (err) { alert(err.message); }
-      finally { setLoading(false); }
-    }
-
-    async function undoAction() {
-      if (!requireAdmin()) return;
-      if (!lastAction) return alert("ไม่มีอะไรให้ Undo");
-      try {
-        setLoading(true);
-        if (lastAction.type === "score") await apiPost({ action: "score", id: lastAction.id, amount: -lastAction.amount });
-        else if (lastAction.type === "add") await apiPost({ action: "delete", id: lastAction.player.id });
-        else if (lastAction.type === "remove") {
-          await apiPost({ action: "add", id: lastAction.player.id, name: lastAction.player.name });
-          if (lastAction.player.score !== 0) await apiPost({ action: "score", id: lastAction.player.id, amount: lastAction.player.score });
-        } else if (lastAction.type === "reset") {
-          for (const oldPlayer of lastAction.players) {
-            const current = players.find(p => p.id === oldPlayer.id);
-            if (current) await apiPost({ action: "score", id: oldPlayer.id, amount: oldPlayer.score - current.score });
-          }
-        }
-        history.unshift({ time: new Date().toLocaleTimeString(), name: "SYSTEM", change: "Undo ล่าสุด" });
-        if (history.length > 100) history.pop();
-        lastAction = null; saveLocal(); await loadPlayers();
-      } catch (err) { alert(err.message); }
-      finally { setLoading(false); }
-    }
-
-    function handleEnter(event) { if (event.key === "Enter") addPlayer(); }
-
-    function setSort(mode) { sortMode = mode; saveLocal(); render(); }
-
+    function setSort(mode) { sortMode = mode; localStorage.setItem("gifted_sort_mode", sortMode); render(); }
     function updateSortLabel() {
       const label = document.getElementById("sortLabel");
       if (!label) return;
       const map = { score_desc: "คะแนน (มาก→น้อย)", score_asc: "คะแนน (น้อย→มาก)", name_asc: "ชื่อ (A→Z)", name_desc: "ชื่อ (Z→A)" };
       label.textContent = "เรียง: " + (map[sortMode] || "คะแนน (มาก→น้อย)");
     }
-
-    function toggleHistory() {
-      const modal = document.getElementById("historyModal");
-      const list = document.getElementById("historyList");
-      if (!modal || !list) return;
-      if (modal.classList.contains("show")) { modal.classList.remove("show"); return; }
-      if (history.length === 0) list.innerHTML = `<div class="empty">ยังไม่มีประวัติ ลองเพิ่มชื่อหรือกด +1 ก่อน</div>`;
-      else list.innerHTML = history.slice(0, 100).map(h => {
-        const changeText = typeof h.change === "number" && h.change > 0 ? `+${h.change}` : h.change;
-        return `<div class="history-item"><div class="history-time">${escapeHtml(h.time || "-")}</div><div class="history-name">${escapeHtml(h.name || "-")}</div><div class="history-change">${escapeHtml(String(changeText))}</div></div>`;
-      }).join("");
-      modal.classList.add("show");
-    }
-
-    function closeHistory(event) { if (event.target.id === "historyModal") event.target.classList.remove("show"); }
-
     function escapeHtml(text) { const div = document.createElement("div"); div.textContent = text; return div.innerHTML; }
 
-    updateAdminButton();
     render();
     loadPlayers();
 
-    // 🔥 Hybrid Auto Refresh แบบเงียบ
     setInterval(() => {
-    if (!isLoading && !document.hidden) {
-    loadPlayers(true);
-    }
-  }, 120000);
+      if (!isLoading && !document.hidden) loadPlayers(true);
+    }, 120000);
 
-    // กลับมาแท็บแล้วโหลดทันทีแบบเงียบ
     document.addEventListener("visibilitychange", () => {
-    if (!document.hidden && !isLoading) {
-    loadPlayers(true);
-    }
-  });
+      if (!document.hidden && !isLoading) loadPlayers(true);
+    });
   </script>
 </body>
 </html>
