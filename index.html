@@ -150,26 +150,36 @@
       else sessionStorage.removeItem("gifted_last_action");
     }
 
-    async function loadPlayers() {
-      try {
-        setLoading(true); render();
-        const res = await fetch(API_URL + "?t=" + Date.now());
-        const data = await res.json();
-        if (!data.ok) throw new Error(data.error || "โหลดข้อมูลไม่สำเร็จ");
-        players = normalizePlayers(data.players || []);
-        localStorage.setItem("gifted_players_backup", JSON.stringify(players));
-      } catch (err) {
-        const backup = JSON.parse(localStorage.getItem("gifted_players_backup") || "[]");
-        if (backup.length) {
-          players = normalizePlayers(backup);
-          console.warn("ใช้ข้อมูลสำรองจากเครื่อง เพราะโหลด Google Sheet ไม่สำเร็จ", err);
-        } else {
-          alert("โหลดข้อมูลจาก Google Sheet ไม่สำเร็จ: " + err.message);
-        }
-      } finally {
-        setLoading(false); render();
-      }
+    async function loadPlayers(silent = false) {
+    try {
+    if (!silent) {
+      setLoading(true);
+      render();
     }
+
+    const res = await fetch(API_URL + "?t=" + Date.now());
+    const data = await res.json();
+
+    if (!data.ok) throw new Error(data.error || "โหลดข้อมูลไม่สำเร็จ");
+
+    players = normalizePlayers(data.players || []);
+    localStorage.setItem("gifted_players_backup", JSON.stringify(players));
+
+    } catch (err) {
+    const backup = JSON.parse(localStorage.getItem("gifted_players_backup") || "[]");
+
+    if (backup.length) {
+      players = normalizePlayers(backup);
+      console.warn("ใช้ข้อมูลสำรองจากเครื่อง", err);
+    } else if (!silent) {
+      alert("โหลดข้อมูลจาก Google Sheet ไม่สำเร็จ: " + err.message);
+    }
+
+    } finally {
+    if (!silent) setLoading(false);
+    render();
+    }
+  }
 
     async function apiPost(payload) {
       const res = await fetch(API_URL, {
@@ -436,19 +446,19 @@
     render();
     loadPlayers();
 
-    // 🔥 Hybrid Auto Refresh
+    // 🔥 Hybrid Auto Refresh แบบเงียบ
     setInterval(() => {
     if (!isLoading && !document.hidden) {
-    loadPlayers();
+    loadPlayers(true);
     }
-    }, 60000);
+  }, 60000);
 
-    // กลับมาแท็บแล้วโหลดทันที
+    // กลับมาแท็บแล้วโหลดทันทีแบบเงียบ
     document.addEventListener("visibilitychange", () => {
     if (!document.hidden && !isLoading) {
-    loadPlayers();
+    loadPlayers(true);
     }
-    });
+  });
   </script>
 </body>
 </html>
