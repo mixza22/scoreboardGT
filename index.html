@@ -12,7 +12,7 @@
     .title h1 { margin: 0; font-size: 30px; letter-spacing: 0.5px; }
     .title p { margin: 6px 0 0; color: #9ca3af; }
     .card { background: rgba(17, 24, 39, 0.9); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; padding: 14px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35); margin-bottom: 12px; }
-    .controls { display: grid; grid-template-columns: minmax(220px, 1fr) repeat(6, auto); gap: 10px; align-items: center; }
+    .controls { display: grid; grid-template-columns: minmax(220px, 1fr) repeat(4, auto); gap: 10px; align-items: center; }
     input { width: 100%; padding: 13px 14px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.12); background: #020617; color: white; outline: none; font-size: 15px; }
     input:focus { border-color: #6366f1; }
     button { border: 0; border-radius: 14px; padding: 12px 14px; color: white; font-weight: 700; cursor: pointer; background: #4f46e5; transition: 0.15s; white-space: nowrap; }
@@ -40,7 +40,15 @@
     .leaderboard-list { max-height: 62vh; overflow-y: auto; padding-right: 4px; }
     .leaderboard-list::-webkit-scrollbar { width: 8px; }
     .leaderboard-list::-webkit-scrollbar-thumb { background: #374151; border-radius: 999px; }
-    .top1 { border-color: rgba(250, 204, 21, 0.7); background: linear-gradient(90deg, rgba(113, 63, 18, 0.45), #020617); }
+    .top1 { border-color: rgba(250, 204, 21, 0.85); border-left: 5px solid #facc15; background: linear-gradient(90deg, rgba(250, 204, 21, 0.18), #020617); box-shadow: 0 0 24px rgba(250, 204, 21, 0.15); transform: scale(1.01); }
+    .top1 .name::before { content: "👑 "; }
+    @keyframes crownGlow { 0%, 100% { box-shadow: 0 0 18px rgba(250, 204, 21, 0.12); } 50% { box-shadow: 0 0 34px rgba(250, 204, 21, 0.32); } }
+    .top1 { animation: crownGlow 2.4s ease-in-out infinite; }
+    @keyframes scoreBump { 0% { transform: scale(1); } 35% { transform: scale(1.24); } 100% { transform: scale(1); } }
+    .score.bump { animation: scoreBump 0.45s ease; color: #facc15; }
+    .player { position: relative; }
+    .float-score { position: absolute; right: 210px; top: 18px; font-weight: 900; color: #facc15; pointer-events: none; animation: floatScore 0.75s ease-out forwards; }
+    @keyframes floatScore { 0% { opacity: 0; transform: translateY(10px) scale(0.9); } 20% { opacity: 1; } 100% { opacity: 0; transform: translateY(-24px) scale(1.1); } }
     .top2 { border-color: rgba(209, 213, 219, 0.45); }
     .top3 { border-color: rgba(180, 83, 9, 0.6); }
     .modal-backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.65); display: none; align-items: center; justify-content: center; padding: 16px; z-index: 999; }
@@ -113,7 +121,6 @@
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbxuf93a0mwC0gAf5xboU1_4Nk6WoBoREZIh40OqP7guGDpDykBUJIdFvcCpZAtXEucdpg/exec";
 
@@ -124,6 +131,7 @@
     let isAdmin = sessionStorage.getItem("gifted_admin_unlocked") === "true";
     let adminPassword = sessionStorage.getItem("gifted_admin_password") || "";
     let isLoading = false;
+    let lastScoreChangedId = null;
 
     function makeId() { return "p_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 8); }
 
@@ -137,6 +145,7 @@
     function saveLocal() {
       localStorage.setItem("gifted_history", JSON.stringify(history));
       localStorage.setItem("gifted_sort_mode", sortMode);
+      localStorage.setItem("gifted_players_backup", JSON.stringify(players));
       if (lastAction) sessionStorage.setItem("gifted_last_action", JSON.stringify(lastAction));
       else sessionStorage.removeItem("gifted_last_action");
     }
@@ -148,8 +157,15 @@
         const data = await res.json();
         if (!data.ok) throw new Error(data.error || "โหลดข้อมูลไม่สำเร็จ");
         players = normalizePlayers(data.players || []);
+        localStorage.setItem("gifted_players_backup", JSON.stringify(players));
       } catch (err) {
-        alert("โหลดข้อมูลจาก Google Sheet ไม่สำเร็จ: " + err.message);
+        const backup = JSON.parse(localStorage.getItem("gifted_players_backup") || "[]");
+        if (backup.length) {
+          players = normalizePlayers(backup);
+          console.warn("ใช้ข้อมูลสำรองจากเครื่อง เพราะโหลด Google Sheet ไม่สำเร็จ", err);
+        } else {
+          alert("โหลดข้อมูลจาก Google Sheet ไม่สำเร็จ: " + err.message);
+        }
       } finally {
         setLoading(false); render();
       }
@@ -259,7 +275,7 @@
           <div class="player ${topClass}">
             <div class="rank">${getRankIcon(realRank)}</div>
             <div><div class="name">${escapeHtml(p.name)}</div><div class="sub">ข้อมูลกลางจาก Google Sheet</div></div>
-            <div class="score">${p.score}</div>
+            <div class="score ${lastScoreChangedId === p.id ? 'bump' : ''}" data-score-id="${p.id}">${p.score}</div>
             <div class="actions">
               <button class="plus" onclick="changeScore('${p.id}', 1)">+1</button>
               <button class="plus" onclick="changeScore('${p.id}', 5)">+5</button>
@@ -268,6 +284,26 @@
             </div>
           </div>`;
       });
+    }
+
+
+    function showScoreFeedback(id, amount) {
+      const scoreEl = document.querySelector(`[data-score-id="${id}"]`);
+      const playerEl = scoreEl?.closest(".player");
+      if (!scoreEl || !playerEl) return;
+
+      const float = document.createElement("div");
+      float.className = "float-score";
+      float.textContent = amount > 0 ? `+${amount}` : String(amount);
+      playerEl.appendChild(float);
+      setTimeout(() => float.remove(), 800);
+
+      setTimeout(() => {
+        if (lastScoreChangedId === id) {
+          lastScoreChangedId = null;
+          render();
+        }
+      }, 520);
     }
 
     async function addPlayer() {
@@ -292,15 +328,26 @@
       if (!requireAdmin()) return;
       const player = players.find(p => p.id === id);
       if (!player) return;
+
+      const oldScore = player.score;
+      player.score = oldScore + amount;
+      lastScoreChangedId = id;
+      history.unshift({ time: new Date().toLocaleTimeString(), name: player.name, change: amount });
+      if (history.length > 100) history.pop();
+      lastAction = { type: "score", id, amount };
+      saveLocal();
+      render();
+      showScoreFeedback(id, amount);
+
       try {
-        setLoading(true);
         await apiPost({ action: "score", id, amount });
-        history.unshift({ time: new Date().toLocaleTimeString(), name: player.name, change: amount });
-        if (history.length > 100) history.pop();
-        lastAction = { type: "score", id, amount };
-        saveLocal(); await loadPlayers();
-      } catch (err) { alert(err.message); }
-      finally { setLoading(false); }
+        await loadPlayers();
+      } catch (err) {
+        player.score = oldScore;
+        lastScoreChangedId = null;
+        render();
+        alert("บันทึกคะแนนไม่สำเร็จ ระบบย้อนค่ากลับแล้ว: " + err.message);
+      }
     }
 
     async function removePlayer(id) {
@@ -359,15 +406,6 @@
 
     function handleEnter(event) { if (event.key === "Enter") addPlayer(); }
 
-    function exportData() {
-      const data = { app: "Gifted Scoreboard", version: 4, source: "Google Sheet API", exportedAt: new Date().toISOString(), sortMode, players, history };
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url; a.download = `gifted-scoreboard-${new Date().toISOString().slice(0, 10)}.json`;
-      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-    }
-
     function setSort(mode) { sortMode = mode; saveLocal(); render(); }
 
     function updateSortLabel() {
@@ -392,13 +430,6 @@
 
     function closeHistory(event) { if (event.target.id === "historyModal") event.target.classList.remove("show"); }
 
-    function exportImage() {
-      if (typeof html2canvas === "undefined") return alert("Export รูปยังไม่พร้อม หรือโหลด library ไม่สำเร็จ");
-      html2canvas(document.querySelector(".app"), { backgroundColor: "#020617", scale: 2 }).then(canvas => {
-        const link = document.createElement("a"); link.download = "scoreboard.png"; link.href = canvas.toDataURL("image/png"); link.click();
-      });
-    }
-
     function escapeHtml(text) { const div = document.createElement("div"); div.textContent = text; return div.innerHTML; }
 
     updateAdminButton();
@@ -406,9 +437,8 @@
     loadPlayers();
     // 🔥 Auto refresh
     setInterval(() => {
-    if (!isLoading) loadPlayers();
+      if (!isLoading) loadPlayers();
     }, 10000);
-    
   </script>
 </body>
 </html>
