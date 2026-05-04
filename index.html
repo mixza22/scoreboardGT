@@ -80,9 +80,7 @@
         <button id="adminBtn" class="admin-off" onclick="toggleAdmin()">🔒 Admin Lock</button>
         <button class="danger" onclick="resetScoresOnly()">รีเซ็ตคะแนน</button>
         <button class="ghost" onclick="undoAction()">Undo</button>
-        <button class="ghost" onclick="exportImage()">Export รูป</button>
         <button class="ghost" onclick="toggleHistory()">History</button>
-        <button class="ghost" onclick="exportData()">Export JSON</button>
       </div>
     </div>
 
@@ -406,6 +404,11 @@
     updateAdminButton();
     render();
     loadPlayers();
+    // 🔥 Auto refresh
+    setInterval(() => {
+    if (!isLoading) loadPlayers();
+    }, 10000);
+    
   </script>
 </body>
 </html>
