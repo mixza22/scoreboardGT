@@ -435,10 +435,20 @@
     updateAdminButton();
     render();
     loadPlayers();
-    // 🔥 Auto refresh
+
+    // 🔥 Hybrid Auto Refresh
     setInterval(() => {
-      if (!isLoading) loadPlayers();
+    if (!isLoading && !document.hidden) {
+    loadPlayers();
+    }
     }, 60000);
+
+    // กลับมาแท็บแล้วโหลดทันที
+    document.addEventListener("visibilitychange", () => {
+    if (!document.hidden && !isLoading) {
+    loadPlayers();
+    }
+    });
   </script>
 </body>
 </html>
