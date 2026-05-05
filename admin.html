@@ -27,7 +27,7 @@
     .stat-label { color: #9ca3af; font-size: 13px; }
     .stat-value { font-size: 22px; font-weight: 800; margin-top: 6px; }
     .board-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; color: #d1d5db; font-size: 14px; gap: 10px; }
-    .player { display: grid; grid-template-columns: 60px 1fr 90px 190px; align-items: center; gap: 12px; background: #020617; border: 1px solid rgba(255, 255, 255, 0.08); padding: 10px; border-radius: 14px; margin-bottom: 8px; }
+    .player { display: grid; grid-template-columns: 34px 60px 1fr 90px 190px; align-items: center; gap: 12px; background: #020617; border: 1px solid rgba(255, 255, 255, 0.08); padding: 10px; border-radius: 14px; margin-bottom: 8px; }
     .rank { font-size: 22px; font-weight: 900; text-align: center; }
     .name { font-size: 17px; font-weight: 800; }
     .sub { color: #9ca3af; font-size: 12px; margin-top: 4px; }
@@ -35,6 +35,10 @@
     .actions { display: flex; justify-content: flex-end; gap: 6px; flex-wrap: nowrap; }
     .actions button { padding: 8px 10px; border-radius: 10px; min-width: 38px; font-size: 13px; }
     .plus { background: #16a34a; }
+    .select-player { width: 20px; height: 20px; accent-color: #22c55e; cursor: pointer; padding: 0; }
+    .bulk-tools { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:10px; padding:10px; background:#020617; border:1px solid rgba(255,255,255,0.08); border-radius:14px; }
+    .bulk-tools input { max-width:110px; padding:10px 12px; border-radius:12px; }
+    .selected-count { color:#bbf7d0; font-weight:900; }
     .minus { background: #f97316; }
     .empty { text-align: center; color: #9ca3af; padding: 35px 10px; }
     .leaderboard-list { max-height: 62vh; overflow-y: auto; padding-right: 4px; }
@@ -76,9 +80,11 @@
       .header, .controls { grid-template-columns: 1fr; display: grid; }
       .stats { grid-template-columns: 1fr; }
       .board-title { display: grid; grid-template-columns: 1fr; }
-      .player { grid-template-columns: 52px 1fr; }
-      .score { text-align: left; grid-column: 2; }
+      .player { grid-template-columns: 32px 52px 1fr; }
+      .score { text-align: left; grid-column: 3; }
       .actions { grid-column: 1 / -1; justify-content: flex-start; }
+      .bulk-tools { display:grid; grid-template-columns:1fr 1fr; }
+      .bulk-tools input { max-width:none; }
     }
   </style>
 </head>
@@ -133,6 +139,18 @@
           <button class="ghost" onclick="setSort('name_desc')">Z→A</button>
         </div>
       </div>
+
+      <div class="bulk-tools">
+        <span>เลือกแล้ว: <span id="selectedCount" class="selected-count">0</span> คน</span>
+        <button class="ghost" onclick="selectAllVisible()">เลือกทั้งหมดที่เห็น</button>
+        <button class="ghost" onclick="clearSelected()">ล้างที่เลือก</button>
+        <button class="plus" onclick="changeSelectedScore(1)">+1</button>
+        <button class="plus" onclick="changeSelectedScore(5)">+5</button>
+        <button class="minus" onclick="changeSelectedScore(-1)">-1</button>
+        <input id="bulkAmountInput" type="number" placeholder="คะแนนเอง" />
+        <button onclick="changeSelectedCustom()">เพิ่มตามช่อง</button>
+      </div>
+
       <div id="list" class="leaderboard-list"></div>
     </div>
   </div>
@@ -155,6 +173,7 @@
     let adminPassword = sessionStorage.getItem("gifted_admin_password") || "";
     let isLoading = false;
     let lastScoreChangedId = null;
+    let selectedIds = new Set();
 
     function makeId() { return "p_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 8); }
 
@@ -287,9 +306,12 @@
 
     function render() {
       sortPlayers(); updateSortLabel(); updateAdminButton();
+      selectedIds = new Set([...selectedIds].filter(id => players.some(p => p.id === id)));
       document.getElementById("totalPlayers").textContent = players.length;
       document.getElementById("totalScore").textContent = players.reduce((sum, p) => sum + p.score, 0);
       document.getElementById("topPlayer").textContent = players.length ? [...players].sort((a, b) => b.score - a.score)[0].name : "-";
+      const selectedCountEl = document.getElementById("selectedCount");
+      if (selectedCountEl) selectedCountEl.textContent = selectedIds.size;
       const list = document.getElementById("list");
       const keyword = (document.getElementById("searchInput")?.value || "").toLowerCase().trim();
       const filteredPlayers = players.filter(p => !keyword || p.name.toLowerCase().includes(keyword));
@@ -302,6 +324,7 @@
         const topClass = realRank === 0 ? "top1" : realRank === 1 ? "top2" : realRank === 2 ? "top3" : "";
         list.innerHTML += `
           <div class="player ${topClass}">
+            <input class="select-player" type="checkbox" ${selectedIds.has(p.id) ? "checked" : ""} onchange="toggleSelectPlayer('${p.id}', this.checked)" />
             <div class="rank">${getRankIcon(realRank)}</div>
             <div><div class="name">${escapeHtml(p.name)}</div><div class="sub">ข้อมูลกลางจาก Google Sheet</div></div>
             <div class="score ${lastScoreChangedId === p.id ? 'bump' : ''}" data-score-id="${p.id}">${p.score}</div>
@@ -333,6 +356,80 @@
           render();
         }
       }, 520);
+    }
+
+
+    function toggleSelectPlayer(id, checked) {
+      if (checked) selectedIds.add(id);
+      else selectedIds.delete(id);
+      const selectedCountEl = document.getElementById("selectedCount");
+      if (selectedCountEl) selectedCountEl.textContent = selectedIds.size;
+    }
+
+    function getVisiblePlayers() {
+      const keyword = (document.getElementById("searchInput")?.value || "").toLowerCase().trim();
+      return players.filter(p => !keyword || p.name.toLowerCase().includes(keyword));
+    }
+
+    function selectAllVisible() {
+      getVisiblePlayers().forEach(p => selectedIds.add(p.id));
+      render();
+    }
+
+    function clearSelected() {
+      selectedIds.clear();
+      render();
+    }
+
+    async function changeSelectedCustom() {
+      const input = document.getElementById("bulkAmountInput");
+      const amount = Number(input?.value);
+      if (!Number.isFinite(amount) || amount === 0) return alert("ใส่จำนวนคะแนนก่อน เช่น 10 หรือ -5");
+      await changeSelectedScore(amount);
+      if (input) input.value = "";
+    }
+
+    async function changeSelectedScore(amount) {
+      if (!requireAdmin()) return;
+
+      const ids = [...selectedIds].filter(id => players.some(p => p.id === id));
+      if (ids.length === 0) return alert("ยังไม่ได้เลือกคน");
+
+      const textAmount = amount > 0 ? `+${amount}` : String(amount);
+      if (!confirm(`ยืนยัน ${textAmount} คะแนน ให้ ${ids.length} คนที่เลือก?`)) return;
+
+      const oldPlayers = JSON.parse(JSON.stringify(players));
+
+      try {
+        setLoading(true);
+
+        for (const id of ids) {
+          await apiPost({ action: "score", id, amount });
+
+          const player = players.find(p => p.id === id);
+          if (player) {
+            history.unshift({
+              time: new Date().toLocaleTimeString(),
+              name: player.name,
+              change: amount
+            });
+          }
+        }
+
+        if (history.length > 100) history = history.slice(0, 100);
+
+        lastAction = { type: "multiScore", ids, amount };
+        selectedIds.clear();
+        saveLocal();
+        await loadPlayers();
+
+      } catch (err) {
+        players = oldPlayers;
+        render();
+        alert("บันทึกคะแนนหลายคนไม่สำเร็จ: " + err.message);
+      } finally {
+        setLoading(false);
+      }
     }
 
     async function addPlayer() {
@@ -387,6 +484,7 @@
       try {
         setLoading(true);
         await apiPost({ action: "delete", id });
+        selectedIds.delete(id);
         history.unshift({ time: new Date().toLocaleTimeString(), name: player.name, change: "ลบชื่อ" });
         if (history.length > 100) history.pop();
         lastAction = { type: "remove", player };
@@ -416,6 +514,11 @@
       try {
         setLoading(true);
         if (lastAction.type === "score") await apiPost({ action: "score", id: lastAction.id, amount: -lastAction.amount });
+        else if (lastAction.type === "multiScore") {
+          for (const id of lastAction.ids) {
+            await apiPost({ action: "score", id, amount: -lastAction.amount });
+          }
+        }
         else if (lastAction.type === "add") await apiPost({ action: "delete", id: lastAction.player.id });
         else if (lastAction.type === "remove") {
           await apiPost({ action: "add", id: lastAction.player.id, name: lastAction.player.name });
