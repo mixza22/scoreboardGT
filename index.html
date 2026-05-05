@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gifted Leaderboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700;800;900&family=Kanit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
 <style>
   * { box-sizing: border-box; }
@@ -21,7 +24,7 @@
   body {
     margin: 0;
     min-height: 100vh;
-    font-family: Arial, sans-serif;
+    font-family: "Prompt", "Kanit", Arial, sans-serif;
     color: var(--text-main);
     padding: 18px;
     background:
@@ -29,6 +32,8 @@
       radial-gradient(circle at 85% 22%, rgba(56,189,248,.12), transparent 36%),
       linear-gradient(135deg, #020617, #000 55%, #031b18);
     overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: geometricPrecision;
   }
 
   .phone-board {
@@ -69,7 +74,7 @@
     pointer-events: none;
   }
 
-  .topbar, .hero-title, .search-box, .podium, .content-panel, .content-layout, .reward-panel {
+  .topbar, .hero-title, .search-box, .live-pill, .podium, .content-panel, .content-layout, .reward-panel {
     position: relative;
     z-index: 1;
   }
@@ -149,13 +154,24 @@
   }
 
   .hero-title a {
-    color: var(--text-muted);
+    padding: 8px 13px;
+    border-radius: 999px;
+    background: rgba(0,255,204,.10);
+    border: 1px solid rgba(0,255,204,.22);
+    color: var(--emerald);
     text-decoration: none;
     font-size: 13px;
+    font-weight: 900;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 0 18px rgba(0,255,204,.10);
+    transition: .18s ease;
   }
 
   .hero-title a:hover {
-    color: var(--emerald);
+    color: white;
+    background: rgba(0,255,204,.18);
+    border-color: rgba(0,255,204,.42);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 28px rgba(0,255,204,.14);
   }
 
   .search-box {
@@ -180,6 +196,41 @@
   input:focus {
     border-color: rgba(0,255,204,.55);
     box-shadow: 0 0 22px rgba(0,255,204,.18);
+  }
+
+  .live-pill {
+    margin-top: 10px;
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+    font-size: 11px;
+    font-weight: 900;
+    color: var(--emerald);
+    padding: 7px 11px;
+    border-radius: 999px;
+    background: rgba(0,255,204,.09);
+    border: 1px solid rgba(0,255,204,.18);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 0 20px rgba(0,255,204,.08);
+  }
+
+  .live-pill::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--emerald);
+    box-shadow: 0 0 12px rgba(0,255,204,.75);
+    animation: liveBlink 1.35s ease-in-out infinite;
+  }
+
+  .live-pill span {
+    color: var(--text-muted);
+    font-weight: 700;
+  }
+
+  @keyframes liveBlink {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: .38; transform: scale(.72); }
   }
 
   .podium {
@@ -293,10 +344,10 @@
     margin-top: 4px;
     padding: 12px;
     border-radius: 24px;
-    background: linear-gradient(180deg, rgba(2,6,23,.66), rgba(2,6,23,.42));
-    border: 1px solid rgba(255,255,255,.07);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 18px 45px rgba(0,0,0,.24);
-    backdrop-filter: blur(16px);
+    background: linear-gradient(180deg, rgba(2,6,23,.72), rgba(2,6,23,.48));
+    border: 1px solid rgba(255,255,255,.10);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 20px 52px rgba(0,0,0,.30);
+    backdrop-filter: blur(18px);
   }
 
   .rank-banner {
@@ -349,10 +400,11 @@
     padding: 9px 8px;
     margin-bottom: 8px;
     border-radius: 16px;
-    background: linear-gradient(90deg, rgba(255,255,255,.04), rgba(255,255,255,.015));
-    border: 1px solid rgba(255,255,255,.06);
+    background: rgba(255,255,255,.055);
+    border: 1px solid rgba(255,255,255,.10);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 12px 30px rgba(0,0,0,.28);
     transition: .18s ease;
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(12px);
   }
 
   .player:hover {
@@ -444,7 +496,7 @@
     position: relative;
     z-index: 1;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 165px;
+    grid-template-columns: minmax(0, 1fr);
     gap: 14px;
     align-items: start;
     margin-top: 4px;
@@ -460,9 +512,9 @@
     background:
       linear-gradient(180deg, rgba(2,6,23,.74), rgba(2,6,23,.46)),
       radial-gradient(circle at 50% 0%, rgba(0,255,204,.14), transparent 48%);
-    border: 1px solid rgba(255,255,255,.08);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 18px 45px rgba(0,0,0,.24);
-    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,.10);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 20px 52px rgba(0,0,0,.30);
+    backdrop-filter: blur(18px);
     overflow: hidden;
   }
 
@@ -477,7 +529,13 @@
     text-shadow: 0 0 14px rgba(0,255,204,.36);
   }
 
-  .reward-title span {
+  .reward-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .reward-title .reward-badge {
     font-size: 10px;
     color: var(--emerald);
     padding: 4px 7px;
@@ -558,6 +616,147 @@
     border: 1px solid rgba(255,255,255,.06);
   }
 
+
+
+  .last-updated {
+    color: rgba(203,213,225,.68);
+    font-weight: 700;
+  }
+
+  .podium-card.top .avatar::before {
+    content: "";
+    position: absolute;
+    inset: -16px;
+    border-radius: 50%;
+    background: conic-gradient(from 180deg, transparent, rgba(0,255,204,.26), transparent 55%, rgba(79,175,179,.20));
+    filter: blur(10px);
+    z-index: -1;
+    animation: spotlightSpin 5.5s linear infinite;
+  }
+
+  @keyframes spotlightSpin {
+    to { transform: rotate(360deg); }
+  }
+
+  .skeleton-card {
+    display: grid;
+    grid-template-columns: 48px 1fr 56px;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 8px;
+    margin-bottom: 8px;
+    border-radius: 16px;
+    background: rgba(255,255,255,.045);
+    border: 1px solid rgba(255,255,255,.07);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .skeleton-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.10), transparent);
+    animation: skeletonMove 1.15s ease-in-out infinite;
+  }
+
+  .sk-avatar,
+  .sk-line,
+  .sk-score {
+    background: rgba(255,255,255,.10);
+    border-radius: 999px;
+  }
+
+  .sk-avatar {
+    width: 42px;
+    height: 42px;
+  }
+
+  .sk-line {
+    height: 12px;
+    margin-bottom: 8px;
+  }
+
+  .sk-line.short {
+    width: 55%;
+    height: 9px;
+    opacity: .65;
+    margin-bottom: 0;
+  }
+
+  .sk-score {
+    width: 46px;
+    height: 18px;
+  }
+
+  @keyframes skeletonMove {
+    100% { transform: translateX(100%); }
+  }
+
+  .player.score-bump .score {
+    animation: scorePop .62s ease;
+  }
+
+  @keyframes scorePop {
+    0% { transform: scale(1); }
+    35% { transform: scale(1.22); color: var(--emerald); text-shadow: 0 0 18px rgba(0,255,204,.75); }
+    100% { transform: scale(1); }
+  }
+
+  .reward-toggle {
+    all: unset;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+  }
+
+  .reward-toggle {
+    padding: 2px 0;
+  }
+
+  .reward-toggle i {
+    display: inline-block;
+    font-style: normal;
+    color: var(--emerald);
+    transition: .22s ease;
+    font-size: 14px;
+    line-height: 1;
+  }
+
+  .reward-action-text {
+    font-size: 10px;
+    font-weight: 900;
+    color: var(--emerald);
+    padding: 4px 7px;
+    border-radius: 999px;
+    background: rgba(0,255,204,.10);
+    border: 1px solid rgba(0,255,204,.18);
+    margin-left: auto;
+    margin-right: 8px;
+  }
+
+  .reward-content {
+    display: block;
+    max-height: 420px;
+    opacity: 1;
+    overflow: hidden;
+    transition: max-height .28s ease, opacity .22s ease, margin-top .22s ease;
+  }
+
+  .reward-panel.collapsed .reward-content {
+    max-height: 0;
+    opacity: 0;
+    margin-top: 0;
+    pointer-events: none;
+  }
+
+  .reward-panel.collapsed .reward-toggle i {
+    transform: rotate(180deg);
+  }
+
   @media (max-width: 640px) {
     body { padding: 0; }
 
@@ -579,12 +778,192 @@
 
     .reward-panel {
       order: -1;
+      display: block;
+    }
+
+    .reward-title {
+      margin-bottom: 0;
+    }
+
+    .reward-content {
+      margin-top: 10px;
+    }
+
+    .reward-box {
+      padding: 10px 12px;
+      margin-bottom: 7px;
+    }
+
+    .reward-note {
+      display: none;
     }
 
     .leaderboard-list {
       max-height: 42vh;
     }
   }
+
+
+  /* Floating Rewards Button + App-style Overlay */
+  .reward-panel {
+    position: fixed;
+    right: max(18px, env(safe-area-inset-right));
+    bottom: calc(92px + env(safe-area-inset-bottom));
+    width: min(330px, calc(100vw - 28px));
+    z-index: 50;
+    transform: translateY(0) scale(1);
+    transform-origin: bottom right;
+    opacity: 1;
+    pointer-events: auto;
+    transition: transform .28s cubic-bezier(.2,.9,.2,1), opacity .22s ease, filter .22s ease;
+  }
+
+  .reward-panel.collapsed {
+    transform: translateY(18px) scale(.92);
+    opacity: 0;
+    pointer-events: none;
+    filter: blur(8px);
+  }
+
+  .reward-panel.collapsed .reward-content {
+    max-height: 420px;
+    opacity: 1;
+  }
+
+  .reward-title {
+    margin-bottom: 11px;
+  }
+
+  .reward-mini-status {
+    font-size: 9px;
+    font-weight: 800;
+    color: rgba(203,213,225,.62);
+    padding: 4px 7px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.045);
+    border: 1px solid rgba(255,255,255,.06);
+  }
+
+  .reward-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 45;
+    opacity: 0;
+    pointer-events: none;
+    background: radial-gradient(circle at 50% 90%, rgba(0,255,204,.08), transparent 38%), rgba(0,0,0,.10);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    transition: opacity .22s ease;
+  }
+
+  .reward-backdrop.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .reward-fab {
+    position: fixed;
+    right: max(18px, env(safe-area-inset-right));
+    bottom: calc(20px + env(safe-area-inset-bottom));
+    z-index: 60;
+    border: 1px solid rgba(0,255,204,.34);
+    border-radius: 999px;
+    padding: 13px 18px 13px 14px;
+    min-height: 54px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: #eafffb;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: .1px;
+    cursor: pointer;
+    background:
+      linear-gradient(135deg, rgba(0,255,204,.20), rgba(15,23,42,.94) 42%, rgba(31,111,115,.58)),
+      rgba(2,6,23,.90);
+    box-shadow:
+      0 18px 44px rgba(0,0,0,.46),
+      0 0 34px rgba(0,255,204,.20),
+      inset 0 1px 0 rgba(255,255,255,.14);
+    backdrop-filter: blur(18px);
+    overflow: hidden;
+    transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+  }
+
+  .reward-fab:hover {
+    transform: translateY(-2px) scale(1.02);
+    border-color: rgba(0,255,204,.62);
+    box-shadow:
+      0 22px 54px rgba(0,0,0,.52),
+      0 0 44px rgba(0,255,204,.30),
+      inset 0 1px 0 rgba(255,255,255,.18);
+  }
+
+  .reward-fab:active {
+    transform: translateY(0) scale(.98);
+  }
+
+  .reward-fab.active {
+    border-color: rgba(255,215,0,.58);
+    box-shadow:
+      0 20px 54px rgba(0,0,0,.52),
+      0 0 38px rgba(255,215,0,.22),
+      inset 0 1px 0 rgba(255,255,255,.18);
+  }
+
+  .fab-icon {
+    width: 30px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: rgba(0,255,204,.12);
+    border: 1px solid rgba(0,255,204,.20);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.12);
+  }
+
+  .fab-glow {
+    position: absolute;
+    inset: -40%;
+    background: conic-gradient(from 180deg, transparent, rgba(0,255,204,.26), transparent 42%, rgba(255,215,0,.18), transparent 68%);
+    animation: fabSpin 4.5s linear infinite;
+    opacity: .7;
+    pointer-events: none;
+  }
+
+  .reward-fab > span:not(.fab-glow) {
+    position: relative;
+    z-index: 1;
+  }
+
+  @keyframes fabSpin {
+    to { transform: rotate(360deg); }
+  }
+
+  @media (max-width: 640px) {
+    .reward-panel {
+      left: 14px;
+      right: 14px;
+      bottom: calc(88px + env(safe-area-inset-bottom));
+      width: auto;
+      max-height: min(72vh, 520px);
+      overflow-y: auto;
+      order: initial;
+    }
+
+    .reward-fab {
+      right: 14px;
+      bottom: calc(16px + env(safe-area-inset-bottom));
+      min-height: 52px;
+      padding: 12px 16px 12px 13px;
+    }
+
+    .reward-mini-status {
+      display: none;
+    }
+  }
+
 </style>
 </head>
 
@@ -612,6 +991,8 @@
       <input id="searchInput" placeholder="🔍 ค้นหาชื่อ..." oninput="render()" />
     </div>
 
+    <div class="live-pill">LIVE UPDATE <span>รีเฟรชทุก 120 วิ</span><span class="last-updated" id="lastUpdated">ยังไม่อัปเดต</span></div>
+
     <div id="podium" class="podium"></div>
 
     <div class="content-layout">
@@ -624,34 +1005,48 @@
         <div id="list" class="leaderboard-list"></div>
       </div>
 
-      <aside class="reward-panel" aria-label="Rewards">
-        <div class="reward-title">Rewards <span>TOP 3</span></div>
-
-        <div class="reward-box gold">
-          <div class="reward-rank">👑 Rank #1</div>
-          <div class="reward-prize">1M IC<br>100 OC</div>
+      <aside class="reward-panel collapsed" id="rewardPanel" aria-label="Rewards">
+        <div class="reward-title">
+          <span class="reward-label">Rewards <span class="reward-badge">TOP 3</span></span>
+          <span class="reward-mini-status">แตะปุ่มล่างเพื่อปิด/เปิด</span>
         </div>
 
-        <div class="reward-box silver">
-          <div class="reward-rank">🥈 Rank #2</div>
-          <div class="reward-prize">500K IC<br>50 OC</div>
-        </div>
+        <div class="reward-content" id="rewardContent">
+          <div class="reward-box gold">
+            <div class="reward-rank">👑 Rank #1</div>
+            <div class="reward-prize">1M IC<br>100 OC</div>
+          </div>
 
-        <div class="reward-box bronze">
-          <div class="reward-rank">🥉 Rank #3</div>
-          <div class="reward-prize">300K IC<br>50 OC</div>
-        </div>
+          <div class="reward-box silver">
+            <div class="reward-rank">🥈 Rank #2</div>
+            <div class="reward-prize">500K IC<br>50 OC</div>
+          </div>
 
-        <div class="reward-note">รางวัลจะมอบให้ผู้เล่นอันดับ 1-3 หลังจบกิจกรรม</div>
+          <div class="reward-box bronze">
+            <div class="reward-rank">🥉 Rank #3</div>
+            <div class="reward-prize">300K IC<br>50 OC</div>
+          </div>
+
+          <div class="reward-note">รางวัลจะมอบให้ผู้เล่นอันดับ 1-3 หลังจบกิจกรรม</div>
+        </div>
       </aside>
     </div>
   </div>
+
+  <div class="reward-backdrop" id="rewardBackdrop" onclick="toggleRewards(false)"></div>
+  <button class="reward-fab" id="rewardFab" type="button" onclick="toggleRewards()" aria-controls="rewardPanel" aria-expanded="false">
+    <span class="fab-glow"></span>
+    <span class="fab-icon">🎁</span>
+    <span>แสดงรางวัล</span>
+  </button>
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbxWB1NhttDdiIG7VaUAD17IEI9Kb34Qsp_nRmnowrW4WtXD1uShBC84jGv2wkCpvziOVw/exec";
 
     let players = [];
     let isLoading = false;
+    let changedScoreIds = new Set();
+    let lastUpdatedText = "ยังไม่อัปเดต";
 
     function makeId() {
       return "p_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 8);
@@ -690,6 +1085,57 @@
       `;
     }
 
+    function updateLastUpdated() {
+      const el = document.getElementById("lastUpdated");
+      if (el) el.textContent = lastUpdatedText;
+    }
+
+    function renderSkeleton() {
+      return Array.from({ length: 6 }).map(() => `
+        <div class="skeleton-card">
+          <div class="sk-avatar"></div>
+          <div>
+            <div class="sk-line"></div>
+            <div class="sk-line short"></div>
+          </div>
+          <div class="sk-score"></div>
+        </div>
+      `).join("");
+    }
+
+    function syncRewardState() {
+      const panel = document.getElementById("rewardPanel");
+      const fab = document.getElementById("rewardFab");
+      const backdrop = document.getElementById("rewardBackdrop");
+      if (!panel || !fab || !backdrop) return;
+
+      const isOpen = !panel.classList.contains("collapsed");
+      fab.classList.toggle("active", isOpen);
+      fab.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      backdrop.classList.toggle("show", isOpen);
+    }
+
+    function toggleRewards(forceOpen) {
+      const panel = document.getElementById("rewardPanel");
+      if (!panel) return;
+
+      const shouldOpen = typeof forceOpen === "boolean"
+        ? forceOpen
+        : panel.classList.contains("collapsed");
+
+      panel.classList.toggle("collapsed", !shouldOpen);
+      localStorage.setItem("gifted_rewards_collapsed", shouldOpen ? "0" : "1");
+      syncRewardState();
+    }
+
+    function initRewardToggle() {
+      const panel = document.getElementById("rewardPanel");
+      if (!panel) return;
+      const saved = localStorage.getItem("gifted_rewards_collapsed");
+      panel.classList.toggle("collapsed", saved !== "0");
+      syncRewardState();
+    }
+
     async function loadPlayers(silent = false) {
       try {
         if (!silent) {
@@ -702,7 +1148,20 @@
 
         if (!data.ok) throw new Error(data.error || "โหลดข้อมูลไม่สำเร็จ");
 
-        players = normalizePlayers(data.players || []);
+        const oldScores = new Map(players.map(p => [p.id, p.score]));
+        const nextPlayers = normalizePlayers(data.players || []);
+
+        changedScoreIds = new Set(
+          nextPlayers
+            .filter(p => oldScores.has(p.id) && oldScores.get(p.id) !== p.score)
+            .map(p => p.id)
+        );
+
+        players = nextPlayers;
+        lastUpdatedText = "อัปเดตล่าสุด " + new Date().toLocaleTimeString("th-TH", {
+          hour: "2-digit",
+          minute: "2-digit"
+        });
         localStorage.setItem("gifted_players_backup", JSON.stringify(players));
       } catch (err) {
         const backup = JSON.parse(localStorage.getItem("gifted_players_backup") || "[]");
@@ -762,6 +1221,7 @@
       const totalScore = players.reduce((sum, p) => sum + p.score, 0);
       document.getElementById("totalPlayers").textContent = players.length;
       document.getElementById("totalScore").textContent = totalScore;
+      updateLastUpdated();
 
       const list = document.getElementById("list");
       const keyword = (document.getElementById("searchInput")?.value || "").toLowerCase().trim();
@@ -775,8 +1235,8 @@
 
       list.innerHTML = "";
 
-      if (isLoading) {
-        list.innerHTML = `<div class="empty">กำลังโหลดข้อมูลจาก Google Sheet...</div>`;
+      if (isLoading && players.length === 0) {
+        list.innerHTML = renderSkeleton();
         return;
       }
 
@@ -799,9 +1259,10 @@
           rank === 3 ? "top3" : "";
 
         const arrow = rank <= 3 ? "▲" : "•";
+        const bumpClass = changedScoreIds.has(p.id) ? "score-bump" : "";
 
         list.innerHTML += `
-          <div class="player ${topClass}">
+          <div class="player ${topClass} ${bumpClass}">
             <div class="mini-avatar">${avatarHtml(p.avatar)}</div>
             <div>
               <div class="name">${escapeHtml(p.name)}</div>
@@ -812,8 +1273,13 @@
           </div>
         `;
       });
+
+      if (changedScoreIds.size) {
+        setTimeout(() => changedScoreIds.clear(), 900);
+      }
     }
 
+    initRewardToggle();
     render();
     loadPlayers();
 
