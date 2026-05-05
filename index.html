@@ -3,25 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gifted Leaderboard ULTRA</title>
+  <title>Gifted Leaderboard</title>
 
 <style>
   * { box-sizing: border-box; }
 
   :root {
-    --primary: #1F6F73;
-    --dark: #0F3E42;
-    --light: #4FAFB3;
     --emerald: #00ffcc;
-    --gold: #ffd76a;
-    --silver: #e2e8f0;
-    --bronze: #f59e0b;
-    --danger: #fb7185;
     --text-main: #f8fafc;
     --text-soft: #cbd5e1;
     --text-muted: #94a3b8;
-    --border: rgba(255,255,255,.12);
-    --glass: rgba(2, 6, 23, .68);
+    --border: rgba(255,255,255,.10);
   }
 
   html { scroll-behavior: smooth; }
@@ -33,378 +25,184 @@
     color: var(--text-main);
     padding: 18px;
     background:
-      radial-gradient(circle at 15% 14%, rgba(79,175,179,.24), transparent 34%),
-      radial-gradient(circle at 86% 20%, rgba(31,111,115,.32), transparent 34%),
-      radial-gradient(circle at 50% 92%, rgba(0,255,204,.14), transparent 32%),
-      linear-gradient(135deg, #020617, #000 48%, #061b1d);
+      radial-gradient(circle at 18% 16%, rgba(0,255,204,.13), transparent 34%),
+      radial-gradient(circle at 85% 22%, rgba(56,189,248,.12), transparent 36%),
+      linear-gradient(135deg, #020617, #000 55%, #031b18);
     overflow-x: hidden;
   }
 
-  body::before,
-  body::after {
-    content: "";
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  body::before {
-    background-image:
-      linear-gradient(rgba(255,255,255,.028) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,.028) 1px, transparent 1px);
-    background-size: 42px 42px;
-    mask-image: linear-gradient(to bottom, rgba(0,0,0,.8), transparent 82%);
-  }
-
-  body::after {
-    display: none;
-  }
-
-  @keyframes globalSweep {
-    to { transform: translateX(240%); }
-  }
-
   .phone-board {
-    max-width: 760px;
+    max-width: 620px;
     margin: auto;
     min-height: calc(100vh - 36px);
-    padding: 24px 20px;
-    border-radius: 38px;
+    padding: 22px 18px;
+    border-radius: 36px;
     position: relative;
     overflow: hidden;
     background:
-      radial-gradient(circle at 50% -10%, rgba(79,175,179,.28), transparent 30%),
-      linear-gradient(180deg, rgba(15,23,42,.88), rgba(2,6,23,.94));
-    border: 1px solid rgba(255,255,255,.13);
-    box-shadow:
-      0 38px 110px rgba(0,0,0,.78),
-      0 0 80px rgba(31,111,115,.14),
-      inset 0 1px 0 rgba(255,255,255,.10);
-    backdrop-filter: blur(26px) saturate(140%);
-    isolation: isolate;
-    z-index: 1;
+      linear-gradient(180deg, rgba(15,23,42,.86), rgba(2,6,23,.92)),
+      radial-gradient(circle at 50% 0%, rgba(0,255,204,.13), transparent 34%);
+    border: 1px solid var(--border);
+    box-shadow: 0 35px 90px rgba(0,0,0,.75), inset 0 1px 0 rgba(255,255,255,.08);
+    backdrop-filter: blur(26px);
   }
 
   .phone-board::before {
     content: "";
     position: absolute;
-    inset: -120px;
+    inset: -80px;
     background:
-      conic-gradient(from 180deg at 50% 28%, transparent, rgba(0,255,204,.12), transparent, rgba(79,175,179,.10), transparent),
-      radial-gradient(circle at 50% 24%, rgba(0,255,204,.15), transparent 30%);
-    animation: auraRotate 14s linear infinite;
-    z-index: -2;
+      linear-gradient(120deg, transparent 20%, rgba(0,255,204,.08), transparent 42%),
+      radial-gradient(circle at 50% 25%, rgba(0,255,204,.12), transparent 32%);
+    pointer-events: none;
   }
 
   .phone-board::after {
     content: "";
     position: absolute;
     inset: 0;
-    background:
-      linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px),
-      radial-gradient(circle at 50% 0%, rgba(79,175,179,.14), transparent 38%);
-    background-size: 34px 34px, 34px 34px, auto;
-    mask-image: linear-gradient(to bottom, black, transparent 75%);
+    background-image:
+      linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+    background-size: 34px 34px;
+    mask-image: linear-gradient(to bottom, black, transparent 70%);
     pointer-events: none;
-    z-index: -1;
   }
 
-  @keyframes auraRotate {
-    to { transform: rotate(360deg); }
-  }
-
-  .topbar, .hero-title, .search-box, .podium, .content-panel, .content-layout, .reward-panel, .stats-strip {
+  .topbar, .hero-title, .search-box, .podium, .content-panel, .content-layout, .reward-panel {
     position: relative;
     z-index: 1;
   }
 
-  .fade-up {
-    opacity: 0;
-    transform: translateY(18px);
-    animation: fadeUp .65s cubic-bezier(.2,.8,.2,1) forwards;
-  }
-
-  @keyframes fadeUp {
-    to { opacity: 1; transform: translateY(0); }
-  }
-
   .topbar {
     display: grid;
-    grid-template-columns: 1fr auto 1fr;
+    grid-template-columns: 1fr;
+    justify-items: center;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
   }
 
   .brand-center {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 11px;
-    padding: 7px 12px;
-    border-radius: 999px;
-    background: rgba(2,6,23,.42);
-    border: 1px solid rgba(255,255,255,.08);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+    gap: 10px;
   }
 
   .gang-logo {
-    width: 44px;
-    height: 44px;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
     object-fit: cover;
     background: #020617;
-    border: 2px solid rgba(79,175,179,.72);
-    animation: logoPulse 2.4s ease-in-out infinite;
+    border: 2px solid rgba(0,255,204,.30);
+    animation: logoPulse 2.8s ease-in-out infinite;
   }
 
   @keyframes logoPulse {
-    0%,100% { box-shadow: 0 0 18px rgba(79,175,179,.34); }
-    50% { box-shadow: 0 0 36px rgba(0,255,204,.58); }
+    0%,100% { box-shadow: 0 0 16px rgba(0,255,204,.22); }
+    50% { box-shadow: 0 0 34px rgba(0,255,204,.50); }
   }
 
   .brand {
-    font-weight: 1000;
-    font-size: 22px;
-    letter-spacing: 1.8px;
-    color: white;
-    text-shadow: 0 0 16px rgba(79,175,179,.50);
+    font-weight: 900;
+    font-size: 21px;
+    letter-spacing: 1px;
+    color: var(--text-main);
+    text-shadow: 0 0 14px rgba(0,255,204,.18);
     white-space: nowrap;
   }
 
-  .admin-link {
-    justify-self: end;
-    color: var(--text-soft);
-    text-decoration: none;
-    font-size: 12px;
-    font-weight: 900;
-    letter-spacing: .4px;
-    padding: 9px 12px;
-    border-radius: 999px;
-    background: rgba(255,255,255,.045);
-    border: 1px solid rgba(255,255,255,.08);
-    transition: .2s ease;
-  }
-
-  .admin-link:hover {
-    color: white;
-    border-color: rgba(79,175,179,.50);
-    box-shadow: 0 0 24px rgba(79,175,179,.18);
-    transform: translateY(-1px);
-  }
-
-  .live-pill {
-    justify-self: start;
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    color: var(--text-soft);
-    font-size: 12px;
-    font-weight: 900;
-    padding: 9px 12px;
-    border-radius: 999px;
-    background: rgba(255,255,255,.045);
-    border: 1px solid rgba(255,255,255,.08);
-  }
-
-  .live-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--emerald);
-    box-shadow: 0 0 16px rgba(0,255,204,.8);
-    animation: blink 1.25s infinite;
-  }
-
-  @keyframes blink {
-    0%,100% { opacity: .45; transform: scale(.9); }
-    50% { opacity: 1; transform: scale(1.18); }
-  }
-
-  .hero-title {
-    margin-top: 26px;
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 14px;
-    align-items: end;
-  }
-
-  .eyebrow {
-    color: var(--light);
-    font-size: 12px;
-    font-weight: 1000;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    text-shadow: 0 0 16px rgba(79,175,179,.38);
-  }
-
-  .hero-title h1 {
-    margin: 5px 0 0;
-    font-size: clamp(36px, 7vw, 64px);
-    line-height: .9;
-    letter-spacing: -2.4px;
-    color: white;
-    text-shadow: 0 0 30px rgba(79,175,179,.32);
-  }
-
-  .hero-copy {
-    margin-top: 8px;
-    font-size: 13px;
-    color: var(--text-muted);
-    line-height: 1.5;
+  .top-actions {
+    position: absolute;
+    right: 0;
+    top: 1px;
   }
 
   .coin {
-    min-width: 120px;
-    text-align: right;
-    background:
-      linear-gradient(145deg, rgba(79,175,179,.16), rgba(2,6,23,.72));
-    border: 1px solid rgba(79,175,179,.24);
-    border-radius: 20px;
-    padding: 11px 13px;
-    font-size: 11px;
+    background: rgba(2,6,23,.68);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 7px 11px;
+    font-size: 12px;
     font-weight: 900;
     color: var(--text-soft);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 18px 40px rgba(0,0,0,.22);
   }
 
   .coin span {
-    display: block;
     color: white;
-    margin-top: 2px;
-    font-size: 22px;
-    text-shadow: 0 0 18px rgba(0,255,204,.35);
+    margin-left: 4px;
+  }
+
+  .hero-title {
+    margin-top: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .hero-title h1 {
+    margin: 0;
+    font-size: 32px;
+    line-height: 1;
+    letter-spacing: -.8px;
+  }
+
+  .hero-title a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 13px;
+  }
+
+  .hero-title a:hover {
+    color: var(--emerald);
   }
 
   .search-box {
-    margin-top: 18px;
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 10px;
+    margin-top: 14px;
   }
 
   input {
     width: 100%;
-    padding: 14px 16px;
-    border-radius: 18px;
-    border: 1px solid rgba(255,255,255,.09);
+    padding: 12px 15px;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,.08);
     background: rgba(2,6,23,.78);
     color: white;
     outline: none;
     font-size: 15px;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
   }
 
-  input::placeholder { color: rgba(203,213,225,.48); }
+  input::placeholder {
+    color: rgba(203,213,225,.48);
+  }
 
   input:focus {
-    border-color: rgba(79,175,179,.78);
-    box-shadow: 0 0 26px rgba(79,175,179,.22), inset 0 1px 0 rgba(255,255,255,.06);
-  }
-
-  .refresh-btn {
-    border: 0;
-    color: white;
-    cursor: pointer;
-    padding: 0 15px;
-    border-radius: 18px;
-    font-weight: 1000;
-    background: linear-gradient(135deg, var(--primary), var(--light));
-    box-shadow: 0 16px 32px rgba(31,111,115,.28);
-    transition: .2s ease;
-  }
-
-  .refresh-btn:hover { transform: translateY(-1px); filter: brightness(1.08); }
-  .refresh-btn:active { transform: translateY(1px) scale(.98); }
-
-  .stats-strip {
-    margin-top: 14px;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-  }
-
-  .stat-card {
-    padding: 12px;
-    border-radius: 18px;
-    background: rgba(255,255,255,.045);
-    border: 1px solid rgba(255,255,255,.07);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
-  }
-
-  .stat-card small {
-    display: block;
-    color: var(--text-muted);
-    font-size: 10px;
-    font-weight: 900;
-    margin-bottom: 5px;
-  }
-
-  .stat-card b {
-    font-size: 20px;
-    color: white;
+    border-color: rgba(0,255,204,.55);
+    box-shadow: 0 0 22px rgba(0,255,204,.18);
   }
 
   .podium {
-    margin: 38px 0 30px;
-    min-height: 190px;
+    margin: 26px 0 24px;
+    min-height: 145px;
     display: grid;
-    grid-template-columns: 1fr 1.3fr 1fr;
+    grid-template-columns: 1fr 1.25fr 1fr;
     align-items: end;
-    gap: 10px;
+    gap: 8px;
   }
 
   .podium-card {
     text-align: center;
     position: relative;
-    animation: floatCard 3.4s ease-in-out infinite;
   }
 
-  .podium-card:nth-child(1) { transform: translateY(30px); animation-delay: .15s; }
-  .podium-card.top { transform: translateY(0); animation-delay: 0s; }
-  .podium-card:nth-child(3) { transform: translateY(34px); animation-delay: .3s; }
-
-  @keyframes floatCard {
-    0%,100% { filter: drop-shadow(0 0 0 rgba(0,0,0,0)); }
-    50% { filter: drop-shadow(0 14px 22px rgba(0,0,0,.32)); }
-  }
-
-  .podium-card.top::before,
-  .podium-card.top::after {
-    content: "";
-    position: absolute;
-    left: 50%;
-    top: 35%;
-    width: 160px;
-    height: 160px;
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-  }
-
-  .podium-card.top::before {
-    background: radial-gradient(circle, rgba(0,255,204,.28), transparent 68%);
-    animation: pulseRing 2.2s infinite;
-  }
-
-  .podium-card.top::after {
-    border: 1px solid rgba(0,255,204,.26);
-    animation: spinRing 7s linear infinite;
-  }
-
-  @keyframes pulseRing {
-    0%,100% { transform: translate(-50%, -50%) scale(.86); opacity: .45; }
-    50% { transform: translate(-50%, -50%) scale(1.08); opacity: .9; }
-  }
-
-  @keyframes spinRing {
-    to { transform: translate(-50%, -50%) rotate(360deg); }
-  }
+  .podium-card:nth-child(1) { transform: translateY(20px); }
+  .podium-card.top { transform: translateY(0); }
+  .podium-card:nth-child(3) { transform: translateY(24px); }
 
   .avatar {
-    width: 74px;
-    height: 74px;
+    width: 68px;
+    height: 68px;
     margin: auto;
     border-radius: 50%;
     display: grid;
@@ -416,24 +214,20 @@
     box-shadow: 0 16px 35px rgba(0,0,0,.35), 0 0 20px rgba(148,163,184,.18);
     position: relative;
     overflow: visible;
-    transition: .2s ease;
   }
 
-  .avatar:hover { transform: scale(1.07); }
-
   .podium-card.top .avatar {
-    width: 118px;
-    height: 118px;
+    width: 108px;
+    height: 108px;
     border-color: var(--emerald);
     background: linear-gradient(135deg, #020617, #064e3b, #00ffcc);
-    box-shadow: 0 0 22px rgba(0,255,204,.50), 0 0 54px rgba(0,255,204,.24);
-    animation: winnerGlow 2.4s ease-in-out infinite;
-    z-index: 2;
+    box-shadow: 0 0 18px rgba(0,255,204,.38), 0 0 42px rgba(0,255,204,.18);
+    animation: winnerGlow 2.5s ease-in-out infinite;
   }
 
   @keyframes winnerGlow {
     0%,100% { transform: translateY(0); }
-    50% { transform: translateY(-5px); }
+    50% { transform: translateY(-3px); }
   }
 
   .avatar img,
@@ -447,36 +241,35 @@
 
   .crown {
     position: absolute;
-    top: -34px;
+    top: -27px;
     left: 50%;
     transform: translateX(-50%);
-    font-size: 27px;
+    font-size: 21px;
     z-index: 4;
-    filter: drop-shadow(0 0 10px rgba(255,215,0,.55));
+    filter: drop-shadow(0 0 8px rgba(0,255,204,.45));
   }
 
   .badge {
     position: absolute;
-    bottom: -10px;
+    bottom: -9px;
     left: 50%;
     transform: translateX(-50%);
-    min-width: 28px;
-    height: 28px;
-    padding: 0 8px;
-    border-radius: 999px;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
     display: grid;
     place-items: center;
     background: #eafffb;
     color: #031b18;
     font-size: 12px;
-    font-weight: 1000;
+    font-weight: 900;
     z-index: 5;
   }
 
   .podium-name {
-    margin-top: 15px;
+    margin-top: 14px;
     font-size: 12px;
-    font-weight: 1000;
+    font-weight: 900;
     color: var(--text-main);
     white-space: nowrap;
     overflow: hidden;
@@ -484,65 +277,42 @@
   }
 
   .podium-card.top .podium-name {
-    font-size: 16px;
+    font-size: 14px;
     color: white;
-    text-shadow: 0 0 14px rgba(0,255,204,.36);
+    text-shadow: 0 0 12px rgba(0,255,204,.25);
   }
 
   .podium-score {
-    margin-top: 5px;
-    font-size: 12px;
-    color: var(--light);
-    font-weight: 1000;
-  }
-
-  .podium-card.top .podium-score { color: var(--emerald); }
-
-  .content-layout {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 190px;
-    gap: 14px;
-    align-items: start;
     margin-top: 4px;
+    font-size: 12px;
+    color: var(--emerald);
+    font-weight: 900;
   }
 
-  .content-panel, .reward-panel {
+  .content-panel {
+    margin-top: 4px;
     padding: 12px;
-    border-radius: 26px;
-    background:
-      linear-gradient(180deg, rgba(2,6,23,.72), rgba(2,6,23,.48));
-    border: 1px solid rgba(255,255,255,.08);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 20px 50px rgba(0,0,0,.26);
-    backdrop-filter: blur(18px) saturate(150%);
+    border-radius: 24px;
+    background: linear-gradient(180deg, rgba(2,6,23,.66), rgba(2,6,23,.42));
+    border: 1px solid rgba(255,255,255,.07);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 18px 45px rgba(0,0,0,.24);
+    backdrop-filter: blur(16px);
   }
 
   .rank-banner {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 13px 16px;
-    border-radius: 18px;
+    padding: 12px 16px;
+    border-radius: 16px;
     margin-bottom: 12px;
     background:
-      linear-gradient(90deg, rgba(79,175,179,.20), rgba(255,255,255,.055)),
+      linear-gradient(90deg, rgba(0,255,204,.14), rgba(255,255,255,.06)),
       rgba(15,23,42,.72);
-    border: 1px solid rgba(79,175,179,.27);
+    border: 1px solid rgba(0,255,204,.20);
     position: relative;
     overflow: hidden;
   }
-
-  .rank-banner::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: -60%;
-    width: 35%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,.13), transparent);
-    animation: bannerShine 3.8s infinite;
-  }
-
-  @keyframes bannerShine { to { left: 125%; } }
 
   .rank-banner span {
     font-size: 13px;
@@ -551,123 +321,102 @@
   }
 
   .rank-banner b {
-    font-size: 20px;
+    font-size: 18px;
     color: white;
-    text-shadow: 0 0 14px rgba(79,175,179,.45);
+    text-shadow: 0 0 12px rgba(0,255,204,.35);
   }
 
   .leaderboard-list {
-    max-height: 43vh;
+    max-height: 40vh;
     overflow-y: auto;
     padding-right: 3px;
   }
 
-  .leaderboard-list::-webkit-scrollbar { width: 6px; }
-  .leaderboard-list::-webkit-scrollbar-thumb { background: rgba(79,175,179,.35); border-radius: 999px; }
+  .leaderboard-list::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .leaderboard-list::-webkit-scrollbar-thumb {
+    background: rgba(0,255,204,.22);
+    border-radius: 999px;
+  }
 
   .player {
     display: grid;
-    grid-template-columns: 48px 1fr 52px 30px;
+    grid-template-columns: 48px 1fr 42px 28px;
     align-items: center;
     gap: 10px;
-    padding: 10px 9px;
+    padding: 9px 8px;
     margin-bottom: 8px;
-    border-radius: 18px;
-    background: linear-gradient(90deg, rgba(255,255,255,.052), rgba(255,255,255,.018));
-    border: 1px solid rgba(255,255,255,.065);
+    border-radius: 16px;
+    background: linear-gradient(90deg, rgba(255,255,255,.04), rgba(255,255,255,.015));
+    border: 1px solid rgba(255,255,255,.06);
     transition: .18s ease;
     backdrop-filter: blur(10px);
-    opacity: 0;
-    transform: translateX(-18px);
-    animation: slideIn .42s cubic-bezier(.2,.8,.2,1) forwards;
-    position: relative;
-    overflow: hidden;
   }
-
-  .player::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(90deg, transparent, rgba(79,175,179,.10), transparent);
-    transform: translateX(-110%);
-    transition: .4s ease;
-  }
-
-  .player:hover::before { transform: translateX(110%); }
-
-  @keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
 
   .player:hover {
-    background: linear-gradient(90deg, rgba(79,175,179,.18), rgba(255,255,255,.025));
-    border-color: rgba(79,175,179,.38);
+    background: linear-gradient(90deg, rgba(0,255,204,.14), rgba(255,255,255,.025));
+    border-color: rgba(0,255,204,.28);
     transform: translateY(-1px) scale(1.01);
-    box-shadow: 0 12px 30px rgba(0,0,0,.34);
+    box-shadow: 0 10px 28px rgba(0,0,0,.32);
   }
 
   .player.top1 {
-    border-color: rgba(0,255,204,.52);
-    box-shadow: 0 0 24px rgba(0,255,204,.17);
-    background: linear-gradient(90deg, rgba(0,255,204,.13), rgba(255,255,255,.025));
+    border-color: rgba(0,255,204,.42);
+    box-shadow: 0 0 18px rgba(0,255,204,.16);
   }
 
-  .player.top2 { border-color: rgba(226,232,240,.30); }
-  .player.top3 { border-color: rgba(245,158,11,.30); }
+  .player.top2 { border-color: rgba(203,213,225,.24); }
+  .player.top3 { border-color: rgba(148,163,184,.20); }
 
   .mini-avatar {
-    width: 43px;
-    height: 43px;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
     display: grid;
     place-items: center;
     background: linear-gradient(135deg, #020617, #1f2937, #334155);
-    border: 2px solid rgba(255,255,255,.12);
+    border: 2px solid rgba(255,255,255,.11);
     overflow: hidden;
-    position: relative;
-    z-index: 1;
   }
 
   .player.top1 .mini-avatar {
-    border-color: rgba(0,255,204,.62);
-    box-shadow: 0 0 18px rgba(0,255,204,.24);
+    border-color: rgba(0,255,204,.55);
+    box-shadow: 0 0 18px rgba(0,255,204,.22);
   }
 
   .name {
     font-size: 15px;
-    font-weight: 1000;
+    font-weight: 900;
     color: var(--text-main);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    position: relative;
-    z-index: 1;
   }
 
   .sub {
     margin-top: 3px;
     font-size: 10px;
     color: var(--text-muted);
-    position: relative;
-    z-index: 1;
   }
 
   .score {
     text-align: right;
     font-size: 18px;
-    font-weight: 1000;
+    font-weight: 900;
     color: var(--text-main);
     transition: .2s;
-    position: relative;
-    z-index: 1;
   }
 
   .player.top1 .score {
     color: var(--emerald);
-    text-shadow: 0 0 13px rgba(0,255,204,.60);
+    text-shadow: 0 0 12px rgba(0,255,204,.55);
   }
 
   .trend {
-    width: 25px;
-    height: 25px;
+    width: 23px;
+    height: 23px;
     border-radius: 50%;
     display: grid;
     place-items: center;
@@ -675,121 +424,137 @@
     border: 1px solid rgba(255,255,255,.06);
     color: var(--text-soft);
     font-size: 11px;
-    font-weight: 1000;
-    position: relative;
-    z-index: 1;
+    font-weight: 900;
   }
 
   .player.top1 .trend {
-    background: rgba(0,255,204,.13);
+    background: rgba(0,255,204,.12);
     color: var(--emerald);
-    border-color: rgba(0,255,204,.25);
+    border-color: rgba(0,255,204,.22);
   }
 
   .empty {
     text-align: center;
-    color: rgba(255,255,255,.58);
-    padding: 38px 10px;
-    line-height: 1.5;
+    color: rgba(255,255,255,.55);
+    padding: 36px 10px;
   }
 
-  .skeleton {
-    height: 63px;
-    border-radius: 18px;
-    margin-bottom: 8px;
-    background: linear-gradient(90deg, rgba(255,255,255,.045), rgba(255,255,255,.11), rgba(255,255,255,.045));
-    background-size: 220% 100%;
-    animation: shimmer 1.15s infinite;
+
+  .content-layout {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 165px;
+    gap: 14px;
+    align-items: start;
+    margin-top: 4px;
   }
 
-  @keyframes shimmer { to { background-position: -220% 0; } }
+  .content-layout .content-panel {
+    margin-top: 0;
+  }
 
   .reward-panel {
+    padding: 12px;
+    border-radius: 24px;
     background:
-      radial-gradient(circle at 50% 0%, rgba(79,175,179,.18), transparent 46%),
-      linear-gradient(180deg, rgba(2,6,23,.76), rgba(2,6,23,.48));
+      linear-gradient(180deg, rgba(2,6,23,.74), rgba(2,6,23,.46)),
+      radial-gradient(circle at 50% 0%, rgba(0,255,204,.14), transparent 48%);
+    border: 1px solid rgba(255,255,255,.08);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 18px 45px rgba(0,0,0,.24);
+    backdrop-filter: blur(16px);
     overflow: hidden;
   }
 
   .reward-title {
-    font-size: 16px;
-    font-weight: 1000;
+    font-size: 15px;
+    font-weight: 900;
     color: white;
-    margin-bottom: 12px;
+    margin-bottom: 11px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    text-shadow: 0 0 16px rgba(79,175,179,.42);
+    text-shadow: 0 0 14px rgba(0,255,204,.36);
   }
 
   .reward-title span {
     font-size: 10px;
     color: var(--emerald);
-    padding: 4px 8px;
+    padding: 4px 7px;
     border-radius: 999px;
     background: rgba(0,255,204,.10);
-    border: 1px solid rgba(0,255,204,.20);
+    border: 1px solid rgba(0,255,204,.18);
   }
 
   .reward-box {
     position: relative;
-    padding: 13px 11px;
-    border-radius: 19px;
+    padding: 12px 10px;
+    border-radius: 18px;
     margin-bottom: 10px;
-    background: linear-gradient(145deg, rgba(15,23,42,.98), rgba(2,6,23,.78));
+    background: linear-gradient(145deg, rgba(15,23,42,.96), rgba(2,6,23,.78));
     border: 1px solid rgba(255,255,255,.08);
     overflow: hidden;
-    transition: .2s ease;
   }
-
-  .reward-box:hover { transform: translateY(-2px); }
 
   .reward-box::before {
     content: "";
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at 18% 0%, rgba(255,255,255,.18), transparent 42%);
+    background: radial-gradient(circle at 18% 0%, rgba(255,255,255,.18), transparent 40%);
     pointer-events: none;
   }
 
   .reward-rank {
     position: relative;
     font-size: 12px;
-    font-weight: 1000;
+    font-weight: 900;
     margin-bottom: 6px;
   }
 
   .reward-prize {
     position: relative;
-    font-size: 15px;
+    font-size: 14px;
     line-height: 1.35;
-    font-weight: 1000;
+    font-weight: 900;
     letter-spacing: .2px;
   }
 
   .reward-box.gold {
-    border-color: rgba(255,215,0,.62);
-    box-shadow: 0 0 26px rgba(255,215,0,.13);
+    border-color: rgba(255,215,0,.58);
+    box-shadow: 0 0 24px rgba(255,215,0,.13);
   }
 
   .reward-box.gold .reward-rank,
   .reward-box.gold .reward-prize {
     color: #ffd700;
-    text-shadow: 0 0 12px rgba(255,215,0,.25);
+    text-shadow: 0 0 12px rgba(255,215,0,.22);
   }
 
-  .reward-box.silver { border-color: rgba(203,213,225,.45); }
-  .reward-box.silver .reward-rank, .reward-box.silver .reward-prize { color: #e2e8f0; }
-  .reward-box.bronze { border-color: rgba(205,127,50,.54); }
-  .reward-box.bronze .reward-rank, .reward-box.bronze .reward-prize { color: #f59e0b; }
+  .reward-box.silver {
+    border-color: rgba(203,213,225,.45);
+  }
+
+  .reward-box.silver .reward-rank,
+  .reward-box.silver .reward-prize {
+    color: #e2e8f0;
+  }
+
+  .reward-box.bronze {
+    border-color: rgba(205,127,50,.54);
+  }
+
+  .reward-box.bronze .reward-rank,
+  .reward-box.bronze .reward-prize {
+    color: #f59e0b;
+  }
 
   .reward-note {
     font-size: 10px;
     line-height: 1.45;
     color: var(--text-muted);
-    padding: 10px;
-    border-radius: 15px;
-    background: rgba(255,255,255,.04);
+    padding: 9px 10px;
+    border-radius: 14px;
+    background: rgba(255,255,255,.035);
     border: 1px solid rgba(255,255,255,.06);
   }
 
@@ -800,95 +565,56 @@
       max-width: none;
       min-height: 100vh;
       border-radius: 0;
-      padding: 22px 16px;
+      padding: 22px 17px;
     }
-
-    .topbar { grid-template-columns: 1fr auto 1fr; }
-    .live-pill { font-size: 0; padding: 9px; }
-    .admin-link { font-size: 11px; padding: 9px 10px; }
-    .brand { font-size: 19px; }
-    .gang-logo { width: 40px; height: 40px; }
-
-    .hero-title {
-      grid-template-columns: 1fr;
-      align-items: start;
-    }
-
-    .coin {
-      width: 100%;
-      text-align: left;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .coin span { display: inline; margin-top: 0; }
-
-    .stats-strip { grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-    .stat-card { padding: 10px 9px; }
-    .stat-card b { font-size: 17px; }
 
     .podium {
-      margin-top: 34px;
-      margin-bottom: 26px;
-      min-height: 170px;
-      gap: 5px;
+      margin-top: 24px;
+      margin-bottom: 22px;
     }
 
-    .avatar { width: 62px; height: 62px; }
-    .podium-card.top .avatar { width: 102px; height: 102px; }
-    .podium-name { font-size: 11px; }
-    .podium-card.top .podium-name { font-size: 14px; }
+    .content-layout {
+      grid-template-columns: 1fr;
+    }
 
-    .content-layout { grid-template-columns: 1fr; }
-    .reward-panel { order: -1; }
-    .leaderboard-list { max-height: 42vh; }
-    .player { grid-template-columns: 45px 1fr 46px 27px; }
-  }
+    .reward-panel {
+      order: -1;
+    }
 
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .leaderboard-list {
+      max-height: 42vh;
+    }
   }
 </style>
 </head>
 
 <body>
   <div class="phone-board">
-    <div class="topbar fade-up">
-      <div class="live-pill"><span class="live-dot"></span> LIVE</div>
+    <div class="topbar">
+      <div></div>
 
       <div class="brand-center">
         <img class="gang-logo" src="gang-logo.png" alt="Gang Logo" />
         <div class="brand">GIFTED</div>
       </div>
 
-      <a class="admin-link" href="admin.html">ADMIN</a>
-    </div>
-
-    <div class="hero-title fade-up" style="animation-delay:.08s">
-      <div>
-        <div class="eyebrow">Cyber Emerald Arena</div>
-        <h1>Leaderboard</h1>
-        <div class="hero-copy">จัดอันดับคะแนนแบบสด ดีไซน์ใหม่เน้น Top 3 ให้เด่น เห็นแล้วว้าวกว่าเดิม</div>
+      <div class="top-actions">
+        <div class="coin">คะแนน <span id="totalScore">0</span></div>
       </div>
-
-      <div class="coin">คะแนนรวม <span id="totalScore">0</span></div>
     </div>
 
-    <div class="search-box fade-up" style="animation-delay:.14s">
-      <input id="searchInput" placeholder="🔍 ค้นหาชื่อผู้เล่น..." oninput="render()" />
-      <button class="refresh-btn" onclick="loadPlayers(false)" title="Refresh">↻</button>
+    <div class="hero-title">
+      <h1>Leaderboard</h1>
+      <a href="admin.html">Admin</a>
     </div>
 
-    <div class="stats-strip fade-up" style="animation-delay:.18s">
-      <div class="stat-card"><small>PLAYERS</small><b id="totalPlayersStat">0</b></div>
-      <div class="stat-card"><small>TOP SCORE</small><b id="topScoreStat">0</b></div>
-      <div class="stat-card"><small>AVERAGE</small><b id="avgScoreStat">0</b></div>
+    <div class="search-box">
+      <input id="searchInput" placeholder="🔍 ค้นหาชื่อ..." oninput="render()" />
     </div>
 
-    <div id="podium" class="podium fade-up" style="animation-delay:.22s"></div>
+    <div id="podium" class="podium"></div>
 
-    <div class="content-layout fade-up" style="animation-delay:.28s">
+    <div class="content-layout">
       <div class="content-panel">
         <div class="rank-banner">
           <span>จำนวนผู้เล่นทั้งหมด</span>
@@ -951,10 +677,12 @@
 
     function avatarHtml(url) {
       if (!url) return "👤";
+
       const safeUrl = escapeHtml(url);
+
       return `
-        <img
-          src="${safeUrl}"
+        <img 
+          src="${safeUrl}" 
           alt="avatar"
           loading="lazy"
           onerror="this.remove(); this.parentElement.textContent='👤';"
@@ -962,17 +690,11 @@
       `;
     }
 
-    function renderSkeleton() {
-      const list = document.getElementById("list");
-      list.innerHTML = Array.from({ length: 6 }).map(() => `<div class="skeleton"></div>`).join("");
-    }
-
     async function loadPlayers(silent = false) {
       try {
         if (!silent) {
           isLoading = true;
           render();
-          renderSkeleton();
         }
 
         const res = await fetch(API_URL + "?t=" + Date.now());
@@ -989,7 +711,7 @@
           players = normalizePlayers(backup);
         } else {
           document.getElementById("list").innerHTML =
-            `<div class="empty">โหลดข้อมูลไม่สำเร็จ:<br>${escapeHtml(err.message)}</div>`;
+            `<div class="empty">โหลดข้อมูลไม่สำเร็จ: ${escapeHtml(err.message)}</div>`;
         }
       } finally {
         isLoading = false;
@@ -999,18 +721,6 @@
 
     function sortPlayers() {
       players.sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
-    }
-
-    function updateStats(sorted) {
-      const totalScore = sorted.reduce((sum, p) => sum + p.score, 0);
-      const topScore = sorted[0]?.score || 0;
-      const avgScore = sorted.length ? Math.round(totalScore / sorted.length) : 0;
-
-      document.getElementById("totalPlayers").textContent = sorted.length;
-      document.getElementById("totalPlayersStat").textContent = sorted.length;
-      document.getElementById("totalScore").textContent = totalScore.toLocaleString();
-      document.getElementById("topScoreStat").textContent = topScore.toLocaleString();
-      document.getElementById("avgScoreStat").textContent = avgScore.toLocaleString();
     }
 
     function renderPodium(sorted) {
@@ -1041,7 +751,7 @@
             <div class="badge">${rank}</div>
           </div>
           <div class="podium-name">${escapeHtml(player.name)}</div>
-          <div class="podium-score">${Number(player.score).toLocaleString()} PTS</div>
+          <div class="podium-score">${player.score}</div>
         </div>
       `;
     }
@@ -1049,19 +759,24 @@
     function render() {
       sortPlayers();
 
+      const totalScore = players.reduce((sum, p) => sum + p.score, 0);
+      document.getElementById("totalPlayers").textContent = players.length;
+      document.getElementById("totalScore").textContent = totalScore;
+
       const list = document.getElementById("list");
       const keyword = (document.getElementById("searchInput")?.value || "").toLowerCase().trim();
-      const sorted = [...players].sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
 
-      updateStats(sorted);
+      const sorted = [...players].sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
       renderPodium(sorted);
 
       const filteredPlayers = sorted.filter(p =>
         !keyword || p.name.toLowerCase().includes(keyword)
       );
 
+      list.innerHTML = "";
+
       if (isLoading) {
-        renderSkeleton();
+        list.innerHTML = `<div class="empty">กำลังโหลดข้อมูลจาก Google Sheet...</div>`;
         return;
       }
 
@@ -1075,9 +790,7 @@
         return;
       }
 
-      list.innerHTML = "";
-
-      filteredPlayers.forEach((p, i) => {
+      filteredPlayers.forEach((p) => {
         const rank = sorted.findIndex(player => player.id === p.id) + 1;
 
         const topClass =
@@ -1085,16 +798,16 @@
           rank === 2 ? "top2" :
           rank === 3 ? "top3" : "";
 
-        const arrow = rank === 1 ? "🔥" : rank <= 3 ? "▲" : "•";
+        const arrow = rank <= 3 ? "▲" : "•";
 
         list.innerHTML += `
-          <div class="player ${topClass}" style="animation-delay:${Math.min(i * 0.045, .55)}s">
+          <div class="player ${topClass}">
             <div class="mini-avatar">${avatarHtml(p.avatar)}</div>
             <div>
               <div class="name">${escapeHtml(p.name)}</div>
               <div class="sub">Rank #${rank}</div>
             </div>
-            <div class="score">${Number(p.score).toLocaleString()}</div>
+            <div class="score">${p.score}</div>
             <div class="trend">${arrow}</div>
           </div>
         `;
