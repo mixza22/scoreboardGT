@@ -1,0 +1,1714 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gifted Leaderboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700;800;900&family=Kanit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+  * { box-sizing: border-box; }
+
+  :root {
+    --bg-main: #0B0B0F;
+    --card-dark: #111118;
+    --card-soft: #181820;
+    --accent-orange: #FF5C39;
+    --accent-purple: #8B5CF6;
+    --accent-blue: #3BA7FF;
+    --accent-pink: #FF4FD8;
+    --emerald: #FF5C39; /* legacy variable: เปลี่ยนจากเขียวนีออนเป็นส้มแดง */
+    --text-main: #F8FAFC;
+    --text-soft: #D7DAE7;
+    --text-muted: #9CA3AF;
+    --border: rgba(255,255,255,.12);
+    --glow-orange: rgba(255,92,57,.30);
+    --glow-purple: rgba(139,92,246,.26);
+    --glow-blue: rgba(59,167,255,.24);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: "Prompt", "Kanit", Arial, sans-serif;
+    color: var(--text-main);
+    padding: 18px;
+    background:
+      radial-gradient(circle at 14% 14%, rgba(255,92,57,.18), transparent 32%),
+      radial-gradient(circle at 86% 18%, rgba(139,92,246,.16), transparent 34%),
+      radial-gradient(circle at 50% 100%, rgba(59,167,255,.13), transparent 38%),
+      linear-gradient(135deg, #0B0B0F, #070710 58%, #130B1F);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: geometricPrecision;
+  }
+
+  .phone-board {
+    max-width: 620px;
+    margin: auto;
+    min-height: calc(100vh - 36px);
+    padding: 22px 18px;
+    border-radius: 36px;
+    position: relative;
+    overflow: hidden;
+    background:
+      linear-gradient(180deg, rgba(17,17,24,.86), rgba(11,11,15,.92)),
+      radial-gradient(circle at 50% 0%, rgba(255,92,57,.13), transparent 34%);
+    border: 1px solid var(--border);
+    box-shadow: 0 35px 90px rgba(0,0,0,.75), inset 0 1px 0 rgba(255,255,255,.08);
+    backdrop-filter: blur(26px);
+  }
+
+  .phone-board::before {
+    content: "";
+    position: absolute;
+    inset: -80px;
+    background:
+      linear-gradient(120deg, transparent 20%, rgba(255,92,57,.08), transparent 42%),
+      radial-gradient(circle at 50% 25%, rgba(255,92,57,.12), transparent 32%);
+    pointer-events: none;
+  }
+
+  .phone-board::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+    background-size: 34px 34px;
+    mask-image: linear-gradient(to bottom, black, transparent 70%);
+    pointer-events: none;
+  }
+
+  .topbar, .hero-title, .search-box, .live-pill, .podium, .content-panel, .content-layout, .reward-panel {
+    position: relative;
+    z-index: 1;
+  }
+
+  .topbar {
+    display: grid;
+    grid-template-columns: 1fr;
+    justify-items: center;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .brand-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .gang-logo {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #0B0B0F;
+    border: 2px solid rgba(255,92,57,.30);
+    animation: logoPulse 2.8s ease-in-out infinite;
+  }
+
+  @keyframes logoPulse {
+    0%,100% { box-shadow: 0 0 16px rgba(255,92,57,.22); }
+    50% { box-shadow: 0 0 34px rgba(255,92,57,.50); }
+  }
+
+  .brand {
+    font-weight: 900;
+    font-size: 21px;
+    letter-spacing: 1px;
+    color: var(--text-main);
+    text-shadow: 0 0 14px rgba(255,92,57,.18);
+    white-space: nowrap;
+  }
+
+  .top-actions {
+    position: absolute;
+    right: 0;
+    top: 1px;
+  }
+
+  .coin {
+    background: rgba(11,11,15,.68);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 7px 11px;
+    font-size: 12px;
+    font-weight: 900;
+    color: var(--text-soft);
+  }
+
+  .coin span {
+    color: white;
+    margin-left: 4px;
+  }
+
+  .hero-title {
+    margin-top: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .hero-title h1 {
+    margin: 0;
+    font-size: 32px;
+    line-height: 1;
+    letter-spacing: -.8px;
+  }
+
+  .hero-title a {
+    padding: 8px 13px;
+    border-radius: 999px;
+    background: rgba(255,92,57,.10);
+    border: 1px solid rgba(255,92,57,.22);
+    color: var(--emerald);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 900;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 0 18px rgba(255,92,57,.10);
+    transition: .18s ease;
+  }
+
+  .hero-title a:hover {
+    color: white;
+    background: rgba(255,92,57,.18);
+    border-color: rgba(255,92,57,.42);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 28px rgba(255,92,57,.14);
+  }
+
+  .search-box {
+    margin-top: 14px;
+  }
+
+  input {
+    width: 100%;
+    padding: 12px 15px;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,.08);
+    background: rgba(11,11,15,.78);
+    color: white;
+    outline: none;
+    font-size: 15px;
+  }
+
+  input::placeholder {
+    color: rgba(203,213,225,.48);
+  }
+
+  input:focus {
+    border-color: rgba(255,92,57,.55);
+    box-shadow: 0 0 22px rgba(255,92,57,.18);
+  }
+
+  .live-pill {
+    margin-top: 10px;
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+    font-size: 11px;
+    font-weight: 900;
+    color: var(--emerald);
+    padding: 7px 11px;
+    border-radius: 999px;
+    background: rgba(255,92,57,.09);
+    border: 1px solid rgba(255,92,57,.18);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 0 20px rgba(255,92,57,.08);
+  }
+
+  .live-pill::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--emerald);
+    box-shadow: 0 0 12px rgba(255,92,57,.75);
+    animation: liveBlink 1.35s ease-in-out infinite;
+  }
+
+  .live-pill span {
+    color: var(--text-muted);
+    font-weight: 700;
+  }
+
+  @keyframes liveBlink {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: .38; transform: scale(.72); }
+  }
+
+  .podium {
+    margin: 26px 0 24px;
+    min-height: 145px;
+    display: grid;
+    grid-template-columns: 1fr 1.25fr 1fr;
+    align-items: end;
+    gap: 8px;
+  }
+
+  .podium-card {
+    text-align: center;
+    position: relative;
+  }
+
+  .podium-card:nth-child(1) { transform: translateY(20px); }
+  .podium-card.top { transform: translateY(0); }
+  .podium-card:nth-child(3) { transform: translateY(24px); }
+
+  .avatar {
+    width: 68px;
+    height: 68px;
+    margin: auto;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(135deg, #0B0B0F, #1f2937, #475569);
+    border: 2px solid rgba(203,213,225,.85);
+    font-size: 26px;
+    font-weight: 900;
+    box-shadow: 0 16px 35px rgba(0,0,0,.35), 0 0 20px rgba(148,163,184,.18);
+    position: relative;
+    overflow: visible;
+  }
+
+  .podium-card.top .avatar {
+    width: 108px;
+    height: 108px;
+    border-color: var(--emerald);
+    background: linear-gradient(135deg, #0B0B0F, #3B1B52, #FF5C39);
+    box-shadow: 0 0 18px rgba(255,92,57,.38), 0 0 42px rgba(255,92,57,.18);
+    animation: winnerGlow 2.5s ease-in-out infinite;
+  }
+
+  @keyframes winnerGlow {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+  }
+
+  .avatar img,
+  .mini-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+  }
+
+  .crown {
+    position: absolute;
+    top: -27px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 21px;
+    z-index: 4;
+    filter: drop-shadow(0 0 8px rgba(255,92,57,.45));
+  }
+
+  .badge {
+    position: absolute;
+    bottom: -9px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: #FFF0EA;
+    color: #120B18;
+    font-size: 12px;
+    font-weight: 900;
+    z-index: 5;
+  }
+
+  .podium-name {
+    margin-top: 14px;
+    font-size: 12px;
+    font-weight: 900;
+    color: var(--text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .podium-card.top .podium-name {
+    font-size: 14px;
+    color: white;
+    text-shadow: 0 0 12px rgba(255,92,57,.25);
+  }
+
+  .podium-score {
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--emerald);
+    font-weight: 900;
+  }
+
+  .content-panel {
+    margin-top: 4px;
+    padding: 12px;
+    border-radius: 24px;
+    background: linear-gradient(180deg, rgba(11,11,15,.72), rgba(11,11,15,.48));
+    border: 1px solid rgba(255,255,255,.10);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 20px 52px rgba(0,0,0,.30);
+    backdrop-filter: blur(18px);
+  }
+
+  .rank-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-radius: 16px;
+    margin-bottom: 12px;
+    background:
+      linear-gradient(90deg, rgba(255,92,57,.14), rgba(255,255,255,.06)),
+      rgba(17,17,24,.72);
+    border: 1px solid rgba(255,92,57,.20);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .rank-banner span {
+    font-size: 13px;
+    color: var(--text-soft);
+    font-weight: 900;
+  }
+
+  .rank-banner b {
+    font-size: 18px;
+    color: white;
+    text-shadow: 0 0 12px rgba(255,92,57,.35);
+  }
+
+  .leaderboard-list {
+    max-height: 40vh;
+    overflow-y: auto;
+    padding-right: 3px;
+  }
+
+  .leaderboard-list::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .leaderboard-list::-webkit-scrollbar-thumb {
+    background: rgba(255,92,57,.22);
+    border-radius: 999px;
+  }
+
+  .player {
+    display: grid;
+    grid-template-columns: 48px 1fr 42px 28px;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 8px;
+    margin-bottom: 8px;
+    border-radius: 16px;
+    background: rgba(255,255,255,.055);
+    border: 1px solid rgba(255,255,255,.10);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 12px 30px rgba(0,0,0,.28);
+    transition: .18s ease;
+    backdrop-filter: blur(12px);
+  }
+
+  .player:hover {
+    background: linear-gradient(90deg, rgba(255,92,57,.14), rgba(255,255,255,.025));
+    border-color: rgba(255,92,57,.28);
+    transform: translateY(-1px) scale(1.01);
+    box-shadow: 0 10px 28px rgba(0,0,0,.32);
+  }
+
+  .player.top1 {
+    border-color: rgba(255,92,57,.42);
+    box-shadow: 0 0 18px rgba(255,92,57,.16);
+  }
+
+  .player.top2 { border-color: rgba(203,213,225,.24); }
+  .player.top3 { border-color: rgba(148,163,184,.20); }
+
+  .mini-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(135deg, #0B0B0F, #1f2937, #334155);
+    border: 2px solid rgba(255,255,255,.11);
+    overflow: hidden;
+  }
+
+  .player.top1 .mini-avatar {
+    border-color: rgba(255,92,57,.55);
+    box-shadow: 0 0 18px rgba(255,92,57,.22);
+  }
+
+  .name {
+    font-size: 15px;
+    font-weight: 900;
+    color: var(--text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .sub {
+    margin-top: 3px;
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+
+  .score {
+    text-align: right;
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--text-main);
+    transition: .2s;
+  }
+
+  .player.top1 .score {
+    color: var(--emerald);
+    text-shadow: 0 0 12px rgba(255,92,57,.55);
+  }
+
+  .trend {
+    width: 23px;
+    height: 23px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: rgba(255,255,255,.07);
+    border: 1px solid rgba(255,255,255,.06);
+    color: var(--text-soft);
+    font-size: 11px;
+    font-weight: 900;
+  }
+
+  .player.top1 .trend {
+    background: rgba(255,92,57,.12);
+    color: var(--emerald);
+    border-color: rgba(255,92,57,.22);
+  }
+
+  .empty {
+    text-align: center;
+    color: rgba(255,255,255,.55);
+    padding: 36px 10px;
+  }
+
+
+  .content-layout {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+    align-items: start;
+    margin-top: 4px;
+  }
+
+  .content-layout .content-panel {
+    margin-top: 0;
+  }
+
+  .reward-panel {
+    padding: 12px;
+    border-radius: 24px;
+    background:
+      linear-gradient(180deg, rgba(11,11,15,.74), rgba(11,11,15,.46)),
+      radial-gradient(circle at 50% 0%, rgba(255,92,57,.14), transparent 48%);
+    border: 1px solid rgba(255,255,255,.10);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 20px 52px rgba(0,0,0,.30);
+    backdrop-filter: blur(18px);
+    overflow: hidden;
+  }
+
+  .reward-title {
+    font-size: 15px;
+    font-weight: 900;
+    color: white;
+    margin-bottom: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-shadow: 0 0 14px rgba(255,92,57,.36);
+  }
+
+  .reward-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .reward-title .reward-badge {
+    font-size: 10px;
+    color: var(--emerald);
+    padding: 4px 7px;
+    border-radius: 999px;
+    background: rgba(255,92,57,.10);
+    border: 1px solid rgba(255,92,57,.18);
+  }
+
+  .reward-box {
+    position: relative;
+    padding: 12px 10px;
+    border-radius: 18px;
+    margin-bottom: 10px;
+    background: linear-gradient(145deg, rgba(17,17,24,.96), rgba(11,11,15,.78));
+    border: 1px solid rgba(255,255,255,.08);
+    overflow: hidden;
+  }
+
+  .reward-box::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 18% 0%, rgba(255,255,255,.18), transparent 40%);
+    pointer-events: none;
+  }
+
+  .reward-rank {
+    position: relative;
+    font-size: 12px;
+    font-weight: 900;
+    margin-bottom: 6px;
+  }
+
+  .reward-prize {
+    position: relative;
+    font-size: 14px;
+    line-height: 1.35;
+    font-weight: 900;
+    letter-spacing: .2px;
+  }
+
+  .reward-box.gold {
+    border-color: rgba(255,215,0,.58);
+    box-shadow: 0 0 24px rgba(255,215,0,.13);
+  }
+
+  .reward-box.gold .reward-rank,
+  .reward-box.gold .reward-prize {
+    color: #ffd700;
+    text-shadow: 0 0 12px rgba(255,215,0,.22);
+  }
+
+  .reward-box.silver {
+    border-color: rgba(203,213,225,.45);
+  }
+
+  .reward-box.silver .reward-rank,
+  .reward-box.silver .reward-prize {
+    color: #e2e8f0;
+  }
+
+  .reward-box.bronze {
+    border-color: rgba(205,127,50,.54);
+  }
+
+  .reward-box.bronze .reward-rank,
+  .reward-box.bronze .reward-prize {
+    color: #f59e0b;
+  }
+
+  .reward-note {
+    font-size: 10px;
+    line-height: 1.45;
+    color: var(--text-muted);
+    padding: 9px 10px;
+    border-radius: 14px;
+    background: rgba(255,255,255,.035);
+    border: 1px solid rgba(255,255,255,.06);
+  }
+
+
+
+  .last-updated {
+    color: rgba(203,213,225,.68);
+    font-weight: 700;
+  }
+
+  .podium-card.top .avatar::before {
+    content: "";
+    position: absolute;
+    inset: -16px;
+    border-radius: 50%;
+    background: conic-gradient(from 180deg, transparent, rgba(255,92,57,.26), transparent 55%, rgba(59,167,255,.20));
+    filter: blur(10px);
+    z-index: -1;
+    animation: spotlightSpin 5.5s linear infinite;
+  }
+
+  @keyframes spotlightSpin {
+    to { transform: rotate(360deg); }
+  }
+
+  .skeleton-card {
+    display: grid;
+    grid-template-columns: 48px 1fr 56px;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 8px;
+    margin-bottom: 8px;
+    border-radius: 16px;
+    background: rgba(255,255,255,.045);
+    border: 1px solid rgba(255,255,255,.07);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .skeleton-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.10), transparent);
+    animation: skeletonMove 1.15s ease-in-out infinite;
+  }
+
+  .sk-avatar,
+  .sk-line,
+  .sk-score {
+    background: rgba(255,255,255,.10);
+    border-radius: 999px;
+  }
+
+  .sk-avatar {
+    width: 42px;
+    height: 42px;
+  }
+
+  .sk-line {
+    height: 12px;
+    margin-bottom: 8px;
+  }
+
+  .sk-line.short {
+    width: 55%;
+    height: 9px;
+    opacity: .65;
+    margin-bottom: 0;
+  }
+
+  .sk-score {
+    width: 46px;
+    height: 18px;
+  }
+
+  @keyframes skeletonMove {
+    100% { transform: translateX(100%); }
+  }
+
+  .player.score-bump .score {
+    animation: scorePop .62s ease;
+  }
+
+  @keyframes scorePop {
+    0% { transform: scale(1); }
+    35% { transform: scale(1.22); color: var(--emerald); text-shadow: 0 0 18px rgba(255,92,57,.75); }
+    100% { transform: scale(1); }
+  }
+
+  .reward-toggle {
+    all: unset;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+  }
+
+  .reward-toggle {
+    padding: 2px 0;
+  }
+
+  .reward-toggle i {
+    display: inline-block;
+    font-style: normal;
+    color: var(--emerald);
+    transition: .22s ease;
+    font-size: 14px;
+    line-height: 1;
+  }
+
+  .reward-action-text {
+    font-size: 10px;
+    font-weight: 900;
+    color: var(--emerald);
+    padding: 4px 7px;
+    border-radius: 999px;
+    background: rgba(255,92,57,.10);
+    border: 1px solid rgba(255,92,57,.18);
+    margin-left: auto;
+    margin-right: 8px;
+  }
+
+  .reward-content {
+    display: block;
+    max-height: 420px;
+    opacity: 1;
+    overflow: hidden;
+    transition: max-height .28s ease, opacity .22s ease, margin-top .22s ease;
+  }
+
+  .reward-panel.collapsed .reward-content {
+    max-height: 0;
+    opacity: 0;
+    margin-top: 0;
+    pointer-events: none;
+  }
+
+  .reward-panel.collapsed .reward-toggle i {
+    transform: rotate(180deg);
+  }
+
+  @media (max-width: 640px) {
+    body { padding: 0; }
+
+    .phone-board {
+      max-width: none;
+      min-height: 100vh;
+      border-radius: 0;
+      padding: 22px 17px;
+    }
+
+    .podium {
+      margin-top: 24px;
+      margin-bottom: 22px;
+    }
+
+    .content-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .reward-panel {
+      order: -1;
+      display: block;
+    }
+
+    .reward-title {
+      margin-bottom: 0;
+    }
+
+    .reward-content {
+      margin-top: 10px;
+    }
+
+    .reward-box {
+      padding: 10px 12px;
+      margin-bottom: 7px;
+    }
+
+    .reward-note {
+      display: none;
+    }
+
+    .leaderboard-list {
+      max-height: 42vh;
+    }
+
+    .event-strip {
+      grid-template-columns: 1fr;
+    }
+
+    .mini-action {
+      width: 100%;
+      text-align: center;
+    }
+  }
+
+
+  .event-strip {
+    position: relative;
+    z-index: 1;
+    margin-top: 12px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: center;
+    padding: 12px;
+    border-radius: 20px;
+    background:
+      linear-gradient(135deg, rgba(255,92,57,.13), rgba(139,92,246,.10), rgba(59,167,255,.08)),
+      rgba(255,255,255,.045);
+    border: 1px solid rgba(255,255,255,.10);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 14px 34px rgba(0,0,0,.25);
+  }
+
+  .season-meta {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .season-badge, .countdown-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 900;
+    background: rgba(255,255,255,.065);
+    border: 1px solid rgba(255,255,255,.10);
+    color: var(--text-soft);
+  }
+
+  .season-badge b {
+    color: var(--accent-orange);
+    text-shadow: 0 0 12px rgba(255,92,57,.38);
+  }
+
+  .countdown-badge b {
+    color: var(--accent-blue);
+    text-shadow: 0 0 12px rgba(59,167,255,.38);
+  }
+
+  .mini-action {
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 999px;
+    padding: 8px 11px;
+    color: white;
+    font: inherit;
+    font-size: 11px;
+    font-weight: 900;
+    cursor: pointer;
+    background: linear-gradient(135deg, rgba(255,92,57,.18), rgba(139,92,246,.16));
+    box-shadow: 0 10px 24px rgba(0,0,0,.22);
+    transition: .18s ease;
+  }
+
+  .mini-action:hover {
+    transform: translateY(-1px);
+    border-color: rgba(255,92,57,.36);
+    box-shadow: 0 12px 30px rgba(255,92,57,.10);
+  }
+
+  .palette-dots {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    gap: 7px;
+    margin-top: 9px;
+  }
+
+  .palette-dots i {
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    box-shadow: 0 0 14px currentColor;
+  }
+
+  .palette-dots i:nth-child(1) { color: #FF5C39; background: #FF5C39; }
+  .palette-dots i:nth-child(2) { color: #8B5CF6; background: #8B5CF6; }
+  .palette-dots i:nth-child(3) { color: #3BA7FF; background: #3BA7FF; }
+  .palette-dots i:nth-child(4) { color: #FF4FD8; background: #FF4FD8; }
+
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    display: none;
+    place-items: center;
+    padding: 18px;
+    background: rgba(0,0,0,.42);
+    backdrop-filter: blur(10px);
+  }
+
+  .modal-backdrop.show { display: grid; }
+
+  .modal-card {
+    width: min(430px, 100%);
+    max-height: min(76vh, 620px);
+    overflow: auto;
+    border-radius: 28px;
+    padding: 16px;
+    background:
+      radial-gradient(circle at 20% 0%, rgba(255,92,57,.18), transparent 38%),
+      radial-gradient(circle at 100% 30%, rgba(139,92,246,.14), transparent 42%),
+      rgba(17,17,24,.94);
+    border: 1px solid rgba(255,255,255,.12);
+    box-shadow: 0 30px 90px rgba(0,0,0,.58);
+  }
+
+  .modal-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .modal-head h2 {
+    margin: 0;
+    font-size: 20px;
+    letter-spacing: -.4px;
+  }
+
+  .modal-close {
+    border: 1px solid rgba(255,255,255,.12);
+    background: rgba(255,255,255,.06);
+    color: white;
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 18px;
+  }
+
+  .profile-card {
+    display: grid;
+    grid-template-columns: 74px 1fr;
+    gap: 12px;
+    align-items: center;
+    padding: 12px;
+    border-radius: 22px;
+    background: rgba(255,255,255,.055);
+    border: 1px solid rgba(255,255,255,.10);
+  }
+
+  .profile-card .mini-avatar { width: 74px; height: 74px; }
+
+  .profile-name { font-size: 19px; font-weight: 900; }
+  .profile-sub { margin-top: 3px; color: var(--text-muted); font-size: 12px; font-weight: 700; }
+
+  .profile-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .profile-stat {
+    padding: 10px;
+    border-radius: 16px;
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.08);
+  }
+
+  .profile-stat b { display: block; font-size: 20px; }
+  .profile-stat span { color: var(--text-muted); font-size: 10px; font-weight: 900; }
+
+  .history-item {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    padding: 10px;
+    margin-top: 8px;
+    border-radius: 16px;
+    background: rgba(255,255,255,.045);
+    border: 1px solid rgba(255,255,255,.075);
+    font-size: 12px;
+  }
+
+  .history-item b { color: white; }
+  .delta-plus { color: #3BA7FF; font-weight: 900; }
+  .delta-minus { color: #FF5C39; font-weight: 900; }
+
+  .confetti-piece {
+    position: fixed;
+    top: -16px;
+    z-index: 100;
+    width: 8px;
+    height: 12px;
+    border-radius: 3px;
+    pointer-events: none;
+    animation: confettiFall 1.35s ease-in forwards;
+  }
+
+  @keyframes confettiFall {
+    to { transform: translateY(105vh) rotate(540deg); opacity: 0; }
+  }
+
+
+  /* Floating Rewards Button + App-style Overlay */
+  .reward-panel {
+    position: fixed;
+    right: max(18px, env(safe-area-inset-right));
+    bottom: calc(92px + env(safe-area-inset-bottom));
+    width: min(330px, calc(100vw - 28px));
+    z-index: 50;
+    transform: translateY(0) scale(1);
+    transform-origin: bottom right;
+    opacity: 1;
+    pointer-events: auto;
+    transition: transform .28s cubic-bezier(.2,.9,.2,1), opacity .22s ease, filter .22s ease;
+  }
+
+  .reward-panel.collapsed {
+    transform: translateY(18px) scale(.92);
+    opacity: 0;
+    pointer-events: none;
+    filter: blur(8px);
+  }
+
+  .reward-panel.collapsed .reward-content {
+    max-height: 420px;
+    opacity: 1;
+  }
+
+  .reward-title {
+    margin-bottom: 11px;
+  }
+
+  .reward-mini-status {
+    font-size: 9px;
+    font-weight: 800;
+    color: rgba(203,213,225,.62);
+    padding: 4px 7px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.045);
+    border: 1px solid rgba(255,255,255,.06);
+  }
+
+  .reward-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 45;
+    opacity: 0;
+    pointer-events: none;
+    background: radial-gradient(circle at 50% 90%, rgba(255,92,57,.08), transparent 38%), rgba(0,0,0,.10);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    transition: opacity .22s ease;
+  }
+
+  .reward-backdrop.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .reward-fab {
+    position: fixed;
+    right: max(18px, env(safe-area-inset-right));
+    bottom: calc(20px + env(safe-area-inset-bottom));
+    z-index: 60;
+    border: 1px solid rgba(255,92,57,.34);
+    border-radius: 999px;
+    padding: 13px 18px 13px 14px;
+    min-height: 54px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: #FFF0EA;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: .1px;
+    cursor: pointer;
+    background:
+      linear-gradient(135deg, rgba(255,92,57,.20), rgba(17,17,24,.94) 42%, rgba(139,92,246,.58)),
+      rgba(11,11,15,.90);
+    box-shadow:
+      0 18px 44px rgba(0,0,0,.46),
+      0 0 34px rgba(255,92,57,.20),
+      inset 0 1px 0 rgba(255,255,255,.14);
+    backdrop-filter: blur(18px);
+    overflow: hidden;
+    transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+  }
+
+  .reward-fab:hover {
+    transform: translateY(-2px) scale(1.02);
+    border-color: rgba(255,92,57,.62);
+    box-shadow:
+      0 22px 54px rgba(0,0,0,.52),
+      0 0 44px rgba(255,92,57,.30),
+      inset 0 1px 0 rgba(255,255,255,.18);
+  }
+
+  .reward-fab:active {
+    transform: translateY(0) scale(.98);
+  }
+
+  .reward-fab.active {
+    border-color: rgba(255,215,0,.58);
+    box-shadow:
+      0 20px 54px rgba(0,0,0,.52),
+      0 0 38px rgba(255,215,0,.22),
+      inset 0 1px 0 rgba(255,255,255,.18);
+  }
+
+  .fab-icon {
+    width: 30px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: rgba(255,92,57,.12);
+    border: 1px solid rgba(255,92,57,.20);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.12);
+  }
+
+  .fab-glow {
+    position: absolute;
+    inset: -40%;
+    background: conic-gradient(from 180deg, transparent, rgba(255,92,57,.26), transparent 42%, rgba(255,215,0,.18), transparent 68%);
+    animation: fabSpin 4.5s linear infinite;
+    opacity: .7;
+    pointer-events: none;
+  }
+
+  .reward-fab > span:not(.fab-glow) {
+    position: relative;
+    z-index: 1;
+  }
+
+  @keyframes fabSpin {
+    to { transform: rotate(360deg); }
+  }
+
+  @media (max-width: 640px) {
+    .reward-panel {
+      left: 14px;
+      right: 14px;
+      bottom: calc(88px + env(safe-area-inset-bottom));
+      width: auto;
+      max-height: min(72vh, 520px);
+      overflow-y: auto;
+      order: initial;
+    }
+
+    .reward-fab {
+      right: 14px;
+      bottom: calc(16px + env(safe-area-inset-bottom));
+      min-height: 52px;
+      padding: 12px 16px 12px 13px;
+    }
+
+    .reward-mini-status {
+      display: none;
+    }
+  }
+
+
+
+  .event-strip.viewer-only {
+    grid-template-columns: 1fr;
+  }
+
+  .event-strip.viewer-only .season-meta {
+    justify-content: center;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: .001ms !important;
+      animation-iteration-count: 1 !important;
+      scroll-behavior: auto !important;
+      transition-duration: .001ms !important;
+    }
+  }
+</style>
+</head>
+
+<body>
+  <div class="phone-board">
+    <div class="topbar">
+      <div></div>
+
+      <div>
+        <div class="brand-center">
+          <img class="gang-logo" src="gang-logo.png" alt="Gang Logo" />
+          <div class="brand">GIFTED</div>
+        </div>
+        <div class="palette-dots" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+      </div>
+
+      <div class="top-actions">
+        <div class="coin">คะแนน <span id="totalScore">0</span></div>
+      </div>
+    </div>
+
+    <div class="hero-title">
+      <h1>Leaderboard</h1>
+      <a href="admin.html">Admin</a>
+    </div>
+
+    <div class="search-box">
+      <input id="searchInput" placeholder="🔍 ค้นหาชื่อ..." oninput="render()" />
+    </div>
+
+    <div class="live-pill">LIVE UPDATE <span>รีเฟรชทุก 120 วิ</span><span class="last-updated" id="lastUpdated">ยังไม่อัปเดต</span></div>
+
+    <div class="event-strip viewer-only">
+      <div class="season-meta">
+        <span class="season-badge">SEASON <b id="seasonName">Season 1</b></span>
+        <span class="countdown-badge">ENDS IN <b id="countdownText">ยังไม่ตั้งเวลา</b></span>
+      </div>
+    </div>
+
+    <div id="podium" class="podium"></div>
+
+    <div class="content-layout">
+      <div class="content-panel">
+        <div class="rank-banner">
+          <span>จำนวนผู้เล่นทั้งหมด</span>
+          <b id="totalPlayers">0</b>
+        </div>
+
+        <div id="list" class="leaderboard-list"></div>
+      </div>
+
+      <aside class="reward-panel collapsed" id="rewardPanel" aria-label="Rewards">
+        <div class="reward-title">
+          <span class="reward-label">Rewards <span class="reward-badge">TOP 3</span></span>
+          <span class="reward-mini-status">แตะปุ่มล่างเพื่อปิด/เปิด</span>
+        </div>
+
+        <div class="reward-content" id="rewardContent">
+          <div class="reward-box gold">
+            <div class="reward-rank">👑 Rank #1</div>
+            <div class="reward-prize">1M IC<br>100 OC</div>
+          </div>
+
+          <div class="reward-box silver">
+            <div class="reward-rank">🥈 Rank #2</div>
+            <div class="reward-prize">500K IC<br>50 OC</div>
+          </div>
+
+          <div class="reward-box bronze">
+            <div class="reward-rank">🥉 Rank #3</div>
+            <div class="reward-prize">300K IC<br>50 OC</div>
+          </div>
+
+          <div class="reward-note">รางวัลจะมอบให้ผู้เล่นอันดับ 1-3 หลังจบกิจกรรม</div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <div class="reward-backdrop" id="rewardBackdrop" onclick="toggleRewards(false)"></div>
+  <button class="reward-fab" id="rewardFab" type="button" onclick="toggleRewards()" aria-controls="rewardPanel" aria-expanded="false">
+    <span class="fab-glow"></span>
+    <span class="fab-icon">🎁</span>
+    <span>แสดงรางวัล</span>
+  </button>
+
+  <div class="modal-backdrop" id="profileModal" onclick="closeModal(event, 'profileModal')">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div class="modal-head">
+        <h2>Player Profile</h2>
+        <button class="modal-close" type="button" onclick="hideModal('profileModal')">×</button>
+      </div>
+      <div id="profileModalBody"></div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbzI_chVwxYppxW0fB_idybAYXm0D80wSDWbO34o8MGNpa6j4d1QLkUDR0Q1xt4l2B3EOQ/exec";
+    const SEASON_KEY = "gifted_current_season";
+    const EVENT_END_KEY = "gifted_event_end_at";
+    const SCORE_HISTORY_KEY = "gifted_score_history_v2";
+    const LEADER_KEY = "gifted_last_leader_id";
+
+    let players = [];
+    let isLoading = false;
+    let changedScoreIds = new Set();
+    let lastUpdatedText = "ยังไม่อัปเดต";
+    let scoreHistory = JSON.parse(localStorage.getItem(SCORE_HISTORY_KEY) || "[]");
+    let currentSeason = localStorage.getItem(SEASON_KEY) || "Season 1";
+    let eventEndAt = localStorage.getItem(EVENT_END_KEY) || "";
+
+    function makeId() {
+      return "p_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 8);
+    }
+
+    function normalizePlayers(list) {
+      return list
+        .filter(p => p && typeof p.name === "string")
+        .map(p => ({
+          id: String(p.id || makeId()),
+          name: p.name.trim(),
+          score: Number.isFinite(Number(p.score)) ? Number(p.score) : 0,
+          avatar: String(p.avatar || "").trim()
+        }))
+        .filter(p => p.name.length > 0);
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement("div");
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function saveScoreHistory() {
+      scoreHistory = scoreHistory.slice(-80);
+      localStorage.setItem(SCORE_HISTORY_KEY, JSON.stringify(scoreHistory));
+    }
+
+    function pushScoreHistory(oldPlayers, nextPlayers) {
+      const oldMap = new Map(oldPlayers.map(p => [p.id, p]));
+      nextPlayers.forEach(p => {
+        const old = oldMap.get(p.id);
+        if (!old || old.score === p.score) return;
+        scoreHistory.push({
+          id: p.id,
+          name: p.name,
+          oldScore: old.score,
+          newScore: p.score,
+          delta: p.score - old.score,
+          season: currentSeason,
+          at: new Date().toISOString()
+        });
+      });
+      saveScoreHistory();
+    }
+
+    function updateSeasonUI() {
+      const seasonEl = document.getElementById("seasonName");
+      if (seasonEl) seasonEl.textContent = currentSeason;
+    }
+
+    function updateCountdown() {
+      const el = document.getElementById("countdownText");
+      if (!el) return;
+      if (!eventEndAt) {
+        el.textContent = "ยังไม่ตั้งเวลา";
+        return;
+      }
+      const end = new Date(eventEndAt).getTime();
+      const diff = end - Date.now();
+      if (!Number.isFinite(end)) {
+        el.textContent = "เวลาไม่ถูกต้อง";
+        return;
+      }
+      if (diff <= 0) {
+        el.textContent = "จบกิจกรรมแล้ว";
+        return;
+      }
+      const d = Math.floor(diff / 86400000);
+      const h = Math.floor((diff % 86400000) / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      el.textContent = d > 0 ? `${d} วัน ${h} ชม.` : `${h} ชม. ${m} นาที`;
+    }
+
+    function showModal(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.add("show");
+    }
+
+    function hideModal(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove("show");
+    }
+
+    function closeModal(event, id) {
+      if (event.target && event.target.id === id) hideModal(id);
+    }
+
+    function showPlayerProfile(id) {
+      const sorted = [...players].sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
+      const p = sorted.find(x => x.id === id);
+      if (!p) return;
+      const rank = sorted.findIndex(x => x.id === id) + 1;
+      const totalScore = sorted.reduce((sum, x) => sum + x.score, 0) || 1;
+      const percent = Math.round((p.score / totalScore) * 100);
+      const recent = scoreHistory.filter(x => x.id === id).slice(-5).reverse();
+      document.getElementById("profileModalBody").innerHTML = `
+        <div class="profile-card">
+          <div class="mini-avatar">${avatarHtml(p.avatar)}</div>
+          <div>
+            <div class="profile-name">${escapeHtml(p.name)}</div>
+            <div class="profile-sub">${escapeHtml(currentSeason)} • Rank #${rank}</div>
+          </div>
+        </div>
+        <div class="profile-stats">
+          <div class="profile-stat"><b>${p.score}</b><span>SCORE</span></div>
+          <div class="profile-stat"><b>#${rank}</b><span>RANK</span></div>
+          <div class="profile-stat"><b>${percent}%</b><span>SHARE</span></div>
+        </div>
+        <div style="margin-top:12px;font-size:13px;font-weight:900;color:var(--text-soft);">ประวัติล่าสุด</div>
+        ${recent.length ? recent.map(historyItemHtml).join("") : `<div class="empty">ยังไม่มีประวัติคะแนนของคนนี้</div>`}
+      `;
+      showModal("profileModal");
+    }
+
+    function historyItemHtml(item) {
+      const deltaClass = item.delta >= 0 ? "delta-plus" : "delta-minus";
+      const deltaText = item.delta >= 0 ? `+${item.delta}` : String(item.delta);
+      const time = new Date(item.at).toLocaleString("th-TH", { dateStyle: "short", timeStyle: "short" });
+      return `
+        <div class="history-item">
+          <div><b>${escapeHtml(item.name)}</b><div>${escapeHtml(item.season || currentSeason)} • ${time}</div></div>
+          <div class="${deltaClass}">${deltaText}</div>
+        </div>
+      `;
+    }
+
+
+
+
+
+    function fireConfetti() {
+      const colors = ["#FF5C39", "#8B5CF6", "#3BA7FF", "#FF4FD8"];
+      for (let i = 0; i < 26; i++) {
+        const piece = document.createElement("i");
+        piece.className = "confetti-piece";
+        piece.style.left = Math.random() * 100 + "vw";
+        piece.style.background = colors[i % colors.length];
+        piece.style.animationDelay = Math.random() * .28 + "s";
+        document.body.appendChild(piece);
+        setTimeout(() => piece.remove(), 1700);
+      }
+    }
+
+    function checkLeaderChange(sorted) {
+      if (!sorted.length) return;
+      const currentLeader = sorted[0].id;
+      const lastLeader = localStorage.getItem(LEADER_KEY);
+      if (lastLeader && lastLeader !== currentLeader) fireConfetti();
+      localStorage.setItem(LEADER_KEY, currentLeader);
+    }
+
+
+    function avatarHtml(url) {
+      if (!url) return "👤";
+
+      const safeUrl = escapeHtml(url);
+
+      return `
+        <img 
+          src="${safeUrl}" 
+          alt="avatar"
+          loading="lazy"
+          onerror="this.remove(); this.parentElement.textContent='👤';"
+        />
+      `;
+    }
+
+    function updateLastUpdated() {
+      const el = document.getElementById("lastUpdated");
+      if (el) el.textContent = lastUpdatedText;
+    }
+
+    function renderSkeleton() {
+      return Array.from({ length: 6 }).map(() => `
+        <div class="skeleton-card">
+          <div class="sk-avatar"></div>
+          <div>
+            <div class="sk-line"></div>
+            <div class="sk-line short"></div>
+          </div>
+          <div class="sk-score"></div>
+        </div>
+      `).join("");
+    }
+
+    function syncRewardState() {
+      const panel = document.getElementById("rewardPanel");
+      const fab = document.getElementById("rewardFab");
+      const backdrop = document.getElementById("rewardBackdrop");
+      if (!panel || !fab || !backdrop) return;
+
+      const isOpen = !panel.classList.contains("collapsed");
+      fab.classList.toggle("active", isOpen);
+      fab.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      backdrop.classList.toggle("show", isOpen);
+    }
+
+    function toggleRewards(forceOpen) {
+      const panel = document.getElementById("rewardPanel");
+      if (!panel) return;
+
+      const shouldOpen = typeof forceOpen === "boolean"
+        ? forceOpen
+        : panel.classList.contains("collapsed");
+
+      panel.classList.toggle("collapsed", !shouldOpen);
+      localStorage.setItem("gifted_rewards_collapsed", shouldOpen ? "0" : "1");
+      syncRewardState();
+    }
+
+    function initRewardToggle() {
+      const panel = document.getElementById("rewardPanel");
+      if (!panel) return;
+      const saved = localStorage.getItem("gifted_rewards_collapsed");
+      panel.classList.toggle("collapsed", saved !== "0");
+      syncRewardState();
+    }
+
+    async function loadPlayers(silent = false) {
+      try {
+        if (!silent) {
+          isLoading = true;
+          render();
+        }
+
+        const res = await fetch(API_URL + "?t=" + Date.now());
+        const data = await res.json();
+
+        if (!data.ok) throw new Error(data.error || "โหลดข้อมูลไม่สำเร็จ");
+
+        const oldPlayers = [...players];
+        const oldScores = new Map(players.map(p => [p.id, p.score]));
+        const nextPlayers = normalizePlayers(data.players || []);
+        pushScoreHistory(oldPlayers, nextPlayers);
+
+        changedScoreIds = new Set(
+          nextPlayers
+            .filter(p => oldScores.has(p.id) && oldScores.get(p.id) !== p.score)
+            .map(p => p.id)
+        );
+
+        players = nextPlayers;
+        lastUpdatedText = "อัปเดตล่าสุด " + new Date().toLocaleTimeString("th-TH", {
+          hour: "2-digit",
+          minute: "2-digit"
+        });
+        localStorage.setItem("gifted_players_backup", JSON.stringify(players));
+      } catch (err) {
+        const backup = JSON.parse(localStorage.getItem("gifted_players_backup") || "[]");
+
+        if (backup.length) {
+          players = normalizePlayers(backup);
+        } else {
+          document.getElementById("list").innerHTML =
+            `<div class="empty">โหลดข้อมูลไม่สำเร็จ: ${escapeHtml(err.message)}</div>`;
+        }
+      } finally {
+        isLoading = false;
+        render();
+      }
+    }
+
+    function sortPlayers() {
+      players.sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
+    }
+
+    function renderPodium(sorted) {
+      const podium = document.getElementById("podium");
+
+      if (sorted.length === 0) {
+        podium.innerHTML = "";
+        return;
+      }
+
+      const first = sorted[0];
+      const second = sorted[1];
+      const third = sorted[2];
+
+      podium.innerHTML = `
+        ${second ? podiumCard(second, 2, false) : `<div></div>`}
+        ${first ? podiumCard(first, 1, true) : `<div></div>`}
+        ${third ? podiumCard(third, 3, false) : `<div></div>`}
+      `;
+    }
+
+    function podiumCard(player, rank, isTop) {
+      return `
+        <div class="podium-card ${isTop ? "top" : ""}">
+          <div class="avatar">
+            ${isTop ? `<div class="crown">👑</div>` : ""}
+            ${avatarHtml(player.avatar)}
+            <div class="badge">${rank}</div>
+          </div>
+          <div class="podium-name">${escapeHtml(player.name)}</div>
+          <div class="podium-score">${player.score}</div>
+        </div>
+      `;
+    }
+
+    function render() {
+      sortPlayers();
+
+      const totalScore = players.reduce((sum, p) => sum + p.score, 0);
+      document.getElementById("totalPlayers").textContent = players.length;
+      document.getElementById("totalScore").textContent = totalScore;
+      updateLastUpdated();
+
+      const list = document.getElementById("list");
+      const keyword = (document.getElementById("searchInput")?.value || "").toLowerCase().trim();
+
+      const sorted = [...players].sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
+      checkLeaderChange(sorted);
+      renderPodium(sorted);
+
+      const filteredPlayers = sorted.filter(p =>
+        !keyword || p.name.toLowerCase().includes(keyword)
+      );
+
+      list.innerHTML = "";
+
+      if (isLoading && players.length === 0) {
+        list.innerHTML = renderSkeleton();
+        return;
+      }
+
+      if (players.length === 0) {
+        list.innerHTML = `<div class="empty">ยังไม่มีรายชื่อ</div>`;
+        return;
+      }
+
+      if (filteredPlayers.length === 0) {
+        list.innerHTML = `<div class="empty">ไม่เจอรายชื่อที่ค้นหา</div>`;
+        return;
+      }
+
+      filteredPlayers.forEach((p) => {
+        const rank = sorted.findIndex(player => player.id === p.id) + 1;
+
+        const topClass =
+          rank === 1 ? "top1" :
+          rank === 2 ? "top2" :
+          rank === 3 ? "top3" : "";
+
+        const arrow = rank <= 3 ? "▲" : "•";
+        const bumpClass = changedScoreIds.has(p.id) ? "score-bump" : "";
+
+        list.innerHTML += `
+          <div class="player ${topClass} ${bumpClass}" data-player-id="${escapeHtml(p.id)}" onclick="showPlayerProfile(this.dataset.playerId)" role="button" tabindex="0">
+            <div class="mini-avatar">${avatarHtml(p.avatar)}</div>
+            <div>
+              <div class="name">${escapeHtml(p.name)}</div>
+              <div class="sub">Rank #${rank}</div>
+            </div>
+            <div class="score">${p.score}</div>
+            <div class="trend">${arrow}</div>
+          </div>
+        `;
+      });
+
+      if (changedScoreIds.size) {
+        setTimeout(() => changedScoreIds.clear(), 900);
+      }
+    }
+
+    initRewardToggle();
+    updateSeasonUI();
+    updateCountdown();
+    setInterval(updateCountdown, 60000);
+    window.addEventListener("storage", (event) => {
+      if (event.key === SEASON_KEY) {
+        currentSeason = event.newValue || "Season 1";
+        updateSeasonUI();
+      }
+      if (event.key === EVENT_END_KEY) {
+        eventEndAt = event.newValue || "";
+        updateCountdown();
+      }
+      if (event.key === SCORE_HISTORY_KEY) {
+        try { scoreHistory = JSON.parse(event.newValue || "[]"); } catch (_) { scoreHistory = []; }
+      }
+    });
+    render();
+    loadPlayers();
+
+    setInterval(() => {
+      if (!isLoading && !document.hidden) loadPlayers(true);
+    }, 120000);
+
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden && !isLoading) loadPlayers(true);
+    });
+  </script>
+</body>
+</html>
