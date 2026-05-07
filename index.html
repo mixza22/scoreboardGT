@@ -1363,6 +1363,15 @@
       saveScoreHistory();
     }
 
+    function applySettings(settings = {}) {
+      currentSeason = settings.seasonName || "Season 1";
+      eventEndAt = settings.eventEndAt || "";
+      localStorage.setItem(SEASON_KEY, currentSeason);
+      localStorage.setItem(EVENT_END_KEY, eventEndAt);
+      updateSeasonUI();
+      updateCountdown();
+    }
+
     function updateSeasonUI() {
       const seasonEl = document.getElementById("seasonName");
       if (seasonEl) seasonEl.textContent = currentSeason;
@@ -1547,6 +1556,10 @@
         const data = await res.json();
 
         if (!data.ok) throw new Error(data.error || "โหลดข้อมูลไม่สำเร็จ");
+
+        if (data.settings) {
+          applySettings(data.settings);
+        }
 
         const oldPlayers = [...players];
         const oldScores = new Map(players.map(p => [p.id, p.score]));
