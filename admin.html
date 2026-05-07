@@ -195,9 +195,7 @@
   </div>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbzI_chVwxYppxW0fB_idybAYXm0D80wSDWbO34o8MGNpa6j4d1QLkUDR0Q1xt4l2B3EOQ/exec";
-    const SEASON_KEY = "gifted_current_season";
-    const EVENT_END_KEY = "gifted_event_end_at";
+    const API_URL = "https://script.google.com/macros/s/AKfycbwybeoG7k-4SSw09bkJofHx3gNai8RXJdoOv0TwilKYm5i_PthzECKrkayle311YFjx-A/exec";
 
     let players = [];
     let history = JSON.parse(localStorage.getItem("gifted_history")) || [];
@@ -208,8 +206,8 @@
     let isLoading = false;
     let lastScoreChangedId = null;
     let selectedIds = new Set();
-    let currentSeason = localStorage.getItem(SEASON_KEY) || "Season 1";
-    let eventEndAt = localStorage.getItem(EVENT_END_KEY) || "";
+    let currentSeason = "Season 1";
+    let eventEndAt = "";
 
     function makeId() { return "p_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 8); }
 
@@ -240,6 +238,10 @@
 
     if (!data.ok) throw new Error(data.error || "โหลดข้อมูลไม่สำเร็จ");
 
+    if (data.settings) {
+      applySettings(data.settings);
+    }
+
     players = normalizePlayers(data.players || []);
     localStorage.setItem("gifted_players_backup", JSON.stringify(players));
 
@@ -265,7 +267,18 @@
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify({ ...payload, password: adminPassword })
       });
-      const data = await res.json();
+
+      const text = await res.text();
+      let data;
+
+      try {
+        data = JSON.parse(text);
+      } catch (err) {
+        console.error("API_URL:", API_URL);
+        console.error("Response was not JSON:", text);
+        throw new Error("API ไม่ได้ส่ง JSON กลับมา เช็ก API_URL / Deploy Apps Script / สิทธิ์ Anyone");
+      }
+
       if (!data.ok) throw new Error(data.error || "บันทึกข้อมูลไม่สำเร็จ");
       return data;
     }
@@ -396,31 +409,45 @@
 
 
     function toggleSelectPlayer(id, checked) {
+      id = String(id || "").trim();
+      if (!id) return;
+
       if (checked) selectedIds.add(id);
       else selectedIds.delete(id);
+
+      updateSelectedCount();
+    }
+
+    function updateSelectedCount() {
       const selectedCountEl = document.getElementById("selectedCount");
       if (selectedCountEl) selectedCountEl.textContent = selectedIds.size;
     }
 
     function getVisiblePlayers() {
       const keyword = (document.getElementById("searchInput")?.value || "").toLowerCase().trim();
-      return players.filter(p => !keyword || p.name.toLowerCase().includes(keyword));
+      return players.filter(p => !keyword || String(p.name || "").toLowerCase().includes(keyword));
     }
 
     function selectAllVisible() {
-      getVisiblePlayers().forEach(p => selectedIds.add(p.id));
+      getVisiblePlayers().forEach(p => selectedIds.add(String(p.id)));
       render();
+      updateSelectedCount();
     }
 
     function clearSelected() {
       selectedIds.clear();
       render();
+      updateSelectedCount();
     }
 
     async function changeSelectedCustom() {
       const input = document.getElementById("bulkAmountInput");
       const amount = Number(input?.value);
-      if (!Number.isFinite(amount) || amount === 0) return alert("ใส่จำนวนคะแนนก่อน เช่น 10 หรือ -5");
+
+      if (!Number.isFinite(amount) || amount === 0) {
+        return alert("ใส่จำนวนคะแนนก่อน เช่น 10 หรือ -5");
+      }
+
       await changeSelectedScore(amount);
       if (input) input.value = "";
     }
@@ -428,29 +455,34 @@
     async function changeSelectedScore(amount) {
       if (!requireAdmin()) return;
 
-      const ids = [...selectedIds].filter(id => players.some(p => p.id === id));
+      const ids = Array.from(selectedIds)
+        .map(id => String(id).trim())
+        .filter(id => players.some(p => String(p.id) === id));
+
       if (ids.length === 0) return alert("ยังไม่ได้เลือกคน");
 
       const textAmount = amount > 0 ? `+${amount}` : String(amount);
       if (!confirm(`ยืนยัน ${textAmount} คะแนน ให้ ${ids.length} คนที่เลือก?`)) return;
 
-      const oldPlayers = JSON.parse(JSON.stringify(players));
-
       try {
         setLoading(true);
 
-        for (const id of ids) {
-          await apiPost({ action: "score", id, amount });
+        await apiPost({
+          action: "bulkScore",
+          ids,
+          amount
+        });
 
-          const player = players.find(p => p.id === id);
+        ids.forEach(id => {
+          const player = players.find(p => String(p.id) === String(id));
           if (player) {
             history.unshift({
-              time: new Date().toLocaleTimeString(),
+              time: new Date().toLocaleTimeString("th-TH"),
               name: player.name,
               change: amount
             });
           }
-        }
+        });
 
         if (history.length > 100) history = history.slice(0, 100);
 
@@ -460,11 +492,10 @@
         await loadPlayers();
 
       } catch (err) {
-        players = oldPlayers;
-        render();
         alert("บันทึกคะแนนหลายคนไม่สำเร็จ: " + err.message);
       } finally {
         setLoading(false);
+        updateSelectedCount();
       }
     }
 
@@ -551,9 +582,7 @@
         setLoading(true);
         if (lastAction.type === "score") await apiPost({ action: "score", id: lastAction.id, amount: -lastAction.amount });
         else if (lastAction.type === "multiScore") {
-          for (const id of lastAction.ids) {
-            await apiPost({ action: "score", id, amount: -lastAction.amount });
-          }
+          await apiPost({ action: "bulkScore", ids: lastAction.ids, amount: -lastAction.amount });
         }
         else if (lastAction.type === "add") await apiPost({ action: "delete", id: lastAction.player.id });
         else if (lastAction.type === "remove") {
@@ -656,6 +685,13 @@
     }
 
 
+
+    function applySettings(settings = {}) {
+      currentSeason = settings.seasonName || "Season 1";
+      eventEndAt = settings.eventEndAt || "";
+      updateEventAdminUI();
+    }
+
     function updateEventAdminUI() {
       const seasonInput = document.getElementById("seasonInput");
       const eventEndInput = document.getElementById("eventEndInput");
@@ -686,21 +722,43 @@
       return `${mins} นาที`;
     }
 
-    function saveEventSettings() {
+    async function saveEventSettings() {
+      if (!requireAdmin()) return;
+
       const seasonInput = document.getElementById("seasonInput");
       const eventEndInput = document.getElementById("eventEndInput");
-      currentSeason = (seasonInput?.value || "Season 1").trim() || "Season 1";
-      eventEndAt = eventEndInput?.value || "";
-      localStorage.setItem(SEASON_KEY, currentSeason);
-      localStorage.setItem(EVENT_END_KEY, eventEndAt);
-      updateEventAdminUI();
-      alert("บันทึก Season / Countdown แล้ว");
+      const seasonName = (seasonInput?.value || "Season 1").trim() || "Season 1";
+      const eventEndAtValue = eventEndInput?.value || "";
+
+      try {
+        setLoading(true);
+        const data = await apiPost({
+          action: "updateSettings",
+          seasonName,
+          eventEndAt: eventEndAtValue
+        });
+
+        if (data.settings) applySettings(data.settings);
+        alert("บันทึก Season / Countdown สำเร็จ");
+      } catch (err) {
+        alert("บันทึก Season / Countdown ไม่สำเร็จ: " + err.message);
+      } finally {
+        setLoading(false);
+      }
     }
 
-    function clearEventSettings() {
-      eventEndAt = "";
-      localStorage.setItem(EVENT_END_KEY, eventEndAt);
-      updateEventAdminUI();
+    async function clearEventSettings() {
+      if (!requireAdmin()) return;
+
+      try {
+        setLoading(true);
+        const data = await apiPost({ action: "clearEventTime" });
+        if (data.settings) applySettings(data.settings);
+      } catch (err) {
+        alert("ล้างเวลาไม่สำเร็จ: " + err.message);
+      } finally {
+        setLoading(false);
+      }
     }
 
     function handleEnter(event) { if (event.key === "Enter") addPlayer(); }
